@@ -17,13 +17,21 @@ Artefakty Etapu 1:
 - `apps/frontend/src/features/editor/TranslationEditor.tsx`
 - `libs/shared/contracts/openapi.yaml`
 
-## Etap 2: Dokumenty i segmentacja
+## Etap 2: Dokumenty i segmentacja - zakonczony
 
 - Dodac import pliku TXT.
 - Podzielic dokument na segmenty po zdaniach lub akapitach.
 - Zapisac dokument, segmenty i statusy segmentow w bazie.
 - Wyswietlic segmenty w frontendzie.
 - Dodac zapis tlumaczenia roboczego.
+
+Artefakty Etapu 2:
+
+- `apps/api/src/cat_api/services/segmentation.py`
+- `apps/api/src/cat_api/api/routes/documents.py`
+- `apps/api/src/cat_api/api/routes/segments.py`
+- `apps/frontend/src/features/editor/TranslationEditor.tsx`
+- `libs/shared/contracts/openapi.yaml`
 
 ## Etap 3: Pamiec tlumaczen
 

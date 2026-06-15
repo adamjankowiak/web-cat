@@ -22,12 +22,18 @@ body {
 }
 
 button,
+select,
 textarea {
   font: inherit;
 }
 
 button {
   cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
 }
 
 .app-shell {
@@ -149,6 +155,64 @@ button {
   padding: 12px;
 }
 
+.import-panel {
+  border-bottom: 1px solid #d8e1dc;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.command-button--full {
+  justify-content: center;
+  width: 100%;
+}
+
+.field-label {
+  display: grid;
+  gap: 6px;
+}
+
+.field-label span {
+  color: #52635a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.field-label select {
+  appearance: none;
+  background: #ffffff;
+  border: 1px solid #cfd8d3;
+  border-radius: 7px;
+  color: #24313c;
+  min-height: 36px;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.field-label select:focus {
+  border-color: #0f766e;
+  outline: 3px solid #cfeee6;
+}
+
+.document-chip {
+  align-items: center;
+  background: #eef6f3;
+  border: 1px solid #c9ded7;
+  border-radius: 7px;
+  color: #31423a;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-height: 34px;
+  padding: 0 10px;
+}
+
+.document-chip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .segment-row {
   align-items: center;
   background: #ffffff;
@@ -184,6 +248,11 @@ button {
 
 .status-dot--translated {
   background: #0f766e;
+}
+
+.status-dot--reviewed,
+.status-dot--approved {
+  background: #265d97;
 }
 
 .segment-number {
@@ -270,6 +339,47 @@ button {
   gap: 16px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   padding: 16px;
+}
+
+.editor-message {
+  background: #fff7ed;
+  border-bottom: 1px solid #f0bd72;
+  color: #7c2d12;
+  font-size: 13px;
+  padding: 10px 16px;
+}
+
+.empty-note,
+.empty-editor {
+  color: #68766f;
+  text-align: center;
+}
+
+.empty-note {
+  border: 1px dashed #cfd8d3;
+  border-radius: 7px;
+  font-size: 13px;
+  padding: 18px 10px;
+}
+
+.empty-editor {
+  align-content: center;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  min-height: 420px;
+  padding: 24px;
+}
+
+.empty-editor h2 {
+  color: #31423a;
+  font-size: 18px;
+  margin: 0;
+}
+
+.empty-editor p {
+  margin: 0;
+  max-width: 520px;
 }
 
 .text-pane {

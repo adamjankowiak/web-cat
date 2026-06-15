@@ -14,13 +14,16 @@ Po Etapie 1 kontrakt wspoldzielony opisuje wdrozony endpoint `GET /health` oraz 
 
 ### Dokumenty
 
-- `POST /documents`
-- `GET /documents`
-- `GET /documents/{document_id}`
-- `GET /documents/{document_id}/segments`
-- `PATCH /segments/{segment_id}`
+- `POST /documents` - importuje dokument TXT z tresci przekazanej w JSON, tworzy projekt gdy
+  `project_id` nie zostal podany, segmentuje tekst po zdaniach albo akapitach i zwraca dokument
+  z segmentami.
+- `GET /documents` - zwraca liste zaimportowanych dokumentow.
+- `GET /documents/{document_id}` - zwraca dokument z segmentami.
+- `GET /documents/{document_id}/segments` - zwraca segmenty dokumentu.
+- `PATCH /segments/{segment_id}` - zapisuje robocze tlumaczenie lub status segmentu.
 - `POST /segments/{segment_id}/approve`
-- Status po Etapie 1: zaplanowane na Etap 2.
+- Status po Etapie 2: wdrozone poza osobnym endpointem zatwierdzania, ktory zostaje dla Etapu 3
+  przy integracji z pamiecia tlumaczen.
 
 ### Pamiec tlumaczen
 

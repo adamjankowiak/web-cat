@@ -19,6 +19,119 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthResponse"
+  /documents:
+    get:
+      summary: List imported documents
+      operationId: listDocuments
+      tags:
+        - documents
+      responses:
+        "200":
+          description: Imported documents ordered by creation date.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Document"
+    post:
+      summary: Import a TXT document
+      operationId: importTxtDocument
+      tags:
+        - documents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentImportRequest"
+      responses:
+        "201":
+          description: Imported document with generated segments.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentDetail"
+        "400":
+          description: Text could not be segmented.
+        "404":
+          description: Project was not found.
+  /documents/{document_id}:
+    get:
+      summary: Get document with segments
+      operationId: getDocument
+      tags:
+        - documents
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Document details and segment list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentDetail"
+        "404":
+          description: Document was not found.
+  /documents/{document_id}/segments:
+    get:
+      summary: List document segments
+      operationId: listDocumentSegments
+      tags:
+        - documents
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Segments ordered by source position.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Segment"
+        "404":
+          description: Document was not found.
+  /segments/{segment_id}:
+    patch:
+      summary: Save draft translation or segment status
+      operationId: updateSegment
+      tags:
+        - segments
+      parameters:
+        - name: segment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SegmentUpdateRequest"
+      responses:
+        "200":
+          description: Updated segment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Segment"
+        "404":
+          description: Segment was not found.
+        "409":
+          description: Segment is locked.
 components:
   schemas:
     HealthResponse:
@@ -91,6 +204,59 @@ components:
         created_at:
           type: string
           format: date-time
+    DocumentImportRequest:
+      type: object
+      required:
+        - filename
+        - content
+      properties:
+        filename:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: sample.txt
+        content:
+          type: string
+          minLength: 1
+          example: Save the file. Close the window.
+        source_language:
+          type: string
+          minLength: 2
+          maxLength: 16
+          default: en
+        target_language:
+          type: string
+          minLength: 2
+          maxLength: 16
+          default: pl
+        project_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        project_name:
+          type:
+            - string
+            - "null"
+          maxLength: 200
+        segmentation_strategy:
+          type: string
+          enum:
+            - sentence
+            - paragraph
+          default: sentence
+    DocumentDetail:
+      type: object
+      required:
+        - document
+        - segments
+      properties:
+        document:
+          $ref: "#/components/schemas/Document"
+        segments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Segment"
     Segment:
       type: object
       required:
@@ -119,6 +285,12 @@ components:
             - "null"
         status:
           type: string
+          enum:
+            - new
+            - draft
+            - translated
+            - reviewed
+            - approved
         locked:
           type: boolean
         created_at:
@@ -127,3 +299,18 @@ components:
         updated_at:
           type: string
           format: date-time
+    SegmentUpdateRequest:
+      type: object
+      properties:
+        target_text:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+          enum:
+            - new
+            - draft
+            - translated
+            - reviewed
+            - approved
