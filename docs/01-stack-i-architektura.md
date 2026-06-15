@@ -73,15 +73,17 @@ Ryzyka: większa złożoność, wymagania sprzętowe i konieczność oceny jako�
 
 Najbardziej praktyczny start to React + Vite, FastAPI, PostgreSQL, RapidFuzz, LanguageTool/Hunspell i Docker Compose. Potem można dodać `pgvector` oraz model embeddingowy do semantycznej pamięci tłumaczeń.
 
-## Stan po Etapie 1
+## Stan po Etapie 2
 
-W repozytorium wdrożono fundament rekomendowanego stacku:
+W repozytorium wdrożono fundament rekomendowanego stacku oraz pierwszy przeplyw roboczy CAT:
 
 - Frontend: React, TypeScript i Vite.
 - Backend: FastAPI, Pydantic Settings, SQLAlchemy i Alembic.
 - Baza danych: PostgreSQL w Docker Compose.
 - Usługi pomocnicze: Redis w Docker Compose, przygotowany pod przyszłe zadania asynchroniczne.
-- Kontrakt API: startowy OpenAPI w `libs/shared/contracts/openapi.yaml`.
+- Kontrakt API: OpenAPI w `libs/shared/contracts/openapi.yaml`.
+- Dokumenty: import tresci TXT przez API, segmentacja po zdaniach albo akapitach i zapis w bazie.
+- Edytor: frontend pobiera dokumenty i segmenty z API oraz zapisuje robocze tlumaczenia.
 
 Elementy wymienione w wariancie rekomendowanym, ale jeszcze niewdrożone funkcjonalnie:
 

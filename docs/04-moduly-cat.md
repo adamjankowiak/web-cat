@@ -15,12 +15,14 @@ Funkcje startowe:
 - panel słownika,
 - panel sprawdzania pisowni.
 
-Stan po Etapie 1:
+Stan po Etapie 2:
 
-- istnieje statyczny widok edytora z lista segmentow, aktywnym segmentem i polem targetu,
+- edytor pobiera dokumenty i segmenty z API,
+- uzytkownik moze zaimportowac plik TXT z poziomu frontendu,
+- backend segmentuje dokument po zdaniach albo akapitach i zapisuje segmenty w bazie,
+- edytor pozwala zapisac robocze tlumaczenie segmentu i oznaczyc segment jako `translated`,
 - istnieja statyczne panele pamieci tlumaczen, slownika i spellchecka,
-- przyciski zapisu, zatwierdzania i wyszukiwania sa przygotowane wizualnie, ale nie sa jeszcze polaczone z API,
-- zapis roboczy, import dokumentow i prawdziwe segmenty z bazy sa zakresem Etapu 2.
+- przycisk wyszukiwania pamieci tlumaczen oraz panele pomocnicze pozostaja statyczne do kolejnych etapow.
 
 ## Pamięć tłumaczeń
 
@@ -106,7 +108,7 @@ Minimalny wynik sprawdzania:
 
 Formaty startowe:
 
-- TXT dla dokumentów,
+- TXT dla dokumentów - import wdrozony w Etapie 2,
 - CSV dla słownika,
 - JSON dla danych demonstracyjnych.
 

@@ -41,13 +41,14 @@ Najciekawszy kierunek to edytor CAT z hybrydową pamięcią tłumaczeń: exact m
 - [Opcjonalna mapa laboratoriów](docs/08-mapa-laboratoriow.md)
 - [Koncepcja projektu i narzędzia](docs/09-koncepcja-projektu-i-narzedzia.md)
 
-## Uruchomienie Etapu 1
+## Uruchomienie
 
 Wariant kontenerowy:
 
 ```powershell
 Copy-Item .env.example .env
-docker compose up --build
+docker compose up -d --build
+docker compose exec -T api alembic upgrade head
 ```
 
 Wymagania dla wariantu kontenerowego:
@@ -68,6 +69,20 @@ Po starcie:
 - API: `http://localhost:8000/health`
 - dokumentacja OpenAPI FastAPI: `http://localhost:8000/docs`
 - frontend: `http://localhost:5173`
+
+Szybka weryfikacja Etapu 2:
+
+```powershell
+$payload = @{
+  filename = "sample.txt"
+  content = "Save the file. Close the window."
+  source_language = "en"
+  target_language = "pl"
+  segmentation_strategy = "sentence"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri http://localhost:8000/documents -Method Post -ContentType "application/json" -Body $payload
+```
 
 Wariant lokalny:
 

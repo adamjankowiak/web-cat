@@ -19,11 +19,11 @@ Artefakty Etapu 1:
 
 ## Etap 2: Dokumenty i segmentacja - zakonczony
 
-- Dodac import pliku TXT.
-- Podzielic dokument na segmenty po zdaniach lub akapitach.
-- Zapisac dokument, segmenty i statusy segmentow w bazie.
-- Wyswietlic segmenty w frontendzie.
-- Dodac zapis tlumaczenia roboczego.
+- Dodano import pliku TXT przez API i frontend.
+- Dodano podzial dokumentu na segmenty po zdaniach lub akapitach.
+- Dodano zapis dokumentu, segmentow i statusow segmentow w bazie.
+- Dodano wyswietlanie segmentow z API w frontendzie.
+- Dodano zapis tlumaczenia roboczego.
 
 Artefakty Etapu 2:
 

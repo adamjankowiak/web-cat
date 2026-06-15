@@ -7,7 +7,8 @@ Docelowo projekt moze miec dwa tryby uruchomienia:
 - tryb prosty: backend i frontend uruchamiane lokalnie,
 - tryb kontenerowy: Docker Compose z baza danych i uslugami pomocniczymi.
 
-Po Etapie 1 oba tryby maja przygotowane pliki uruchomieniowe. Szczegolowe komendy sa opisane w `README.md`.
+Po Etapie 2 oba tryby maja przygotowane pliki uruchomieniowe. Szczegolowe komendy sa opisane w
+`README.md`.
 
 Komponenty w Docker Compose:
 
@@ -17,11 +18,12 @@ Komponenty w Docker Compose:
 - `redis`,
 - opcjonalnie `languagetool`.
 
-Status po Etapie 1:
+Status po Etapie 2:
 
 - `frontend`, `api`, `postgres` i `redis` sa skonfigurowane w `docker-compose.yml`,
 - `worker` i `languagetool` pozostaja planowanymi rozszerzeniami,
-- migracje uruchamia `alembic upgrade head` z katalogu `apps/api`.
+- migracje lokalnie uruchamia `alembic upgrade head` z katalogu `apps/api`,
+- migracje w Dockerze uruchamia `docker compose exec -T api alembic upgrade head`.
 
 ## Testy backendu
 
@@ -35,7 +37,11 @@ Zakres minimalny:
 - odpowiedz spellcheckera,
 - import prostego dokumentu.
 
-Po Etapie 1 istnieje test `GET /health`; pozostale testy wejda razem z implementacja modulow CAT.
+Po Etapie 2 istnieja testy:
+
+- `GET /health`,
+- segmentacji po zdaniach i akapitach,
+- importu dokumentu TXT i zapisu roboczego tlumaczenia segmentu.
 
 ## Testy frontendu
 

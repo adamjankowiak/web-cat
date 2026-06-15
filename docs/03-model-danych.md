@@ -2,7 +2,8 @@
 
 Ten model jest propozycja startowa. Powinien byc prosty, ale pozwalac na rozwoj funkcji CAT bez przepisywania bazy od zera.
 
-Po Etapie 1 model bazowy jest wdrozony w SQLAlchemy i migracji Alembic:
+Po Etapie 2 model bazowy jest wdrozony w SQLAlchemy i migracji Alembic oraz uzywany przez
+przeplyw importu dokumentow i zapisu segmentow:
 
 - modele: `apps/api/src/cat_api/models/`,
 - migracja: `apps/api/alembic/versions/0001_initial.py`.
