@@ -50,6 +50,19 @@ Copy-Item .env.example .env
 docker compose up --build
 ```
 
+Wymagania dla wariantu kontenerowego:
+
+- uruchomiony Docker Desktop,
+- aktywny kontekst Docker Desktop Linux Engine,
+- wolne porty `5432`, `6379`, `8000` i `5173`.
+
+Jeśli pojawi się błąd podobny do `failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine`, Docker Desktop nie działa albo Linux Engine nie zdążył jeszcze wystartować. Uruchom Docker Desktop, poczekaj aż pokaże status `Docker Desktop is running`, a potem sprawdź:
+
+```powershell
+docker version
+docker compose config
+```
+
 Po starcie:
 
 - API: `http://localhost:8000/health`
