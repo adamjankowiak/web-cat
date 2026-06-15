@@ -40,3 +40,46 @@ Najciekawszy kierunek to edytor CAT z hybrydową pamięcią tłumaczeń: exact m
 - [DevOps i testy](docs/07-devops-i-testy.md)
 - [Opcjonalna mapa laboratoriów](docs/08-mapa-laboratoriow.md)
 - [Koncepcja projektu i narzędzia](docs/09-koncepcja-projektu-i-narzedzia.md)
+
+## Uruchomienie Etapu 1
+
+Wariant kontenerowy:
+
+```powershell
+Copy-Item .env.example .env
+docker compose up --build
+```
+
+Po starcie:
+
+- API: `http://localhost:8000/health`
+- dokumentacja OpenAPI FastAPI: `http://localhost:8000/docs`
+- frontend: `http://localhost:5173`
+
+Wariant lokalny:
+
+```powershell
+Copy-Item .env.example .env
+cd apps/api
+python -m pip install -e .[dev]
+alembic upgrade head
+python -m uvicorn cat_api.main:app --reload
+```
+
+Frontend lokalnie wymaga Node.js i NPM:
+
+```powershell
+cd apps/frontend
+npm install
+npm run dev
+```
+
+Pomocniczy skrypt PowerShell:
+
+```powershell
+.\scripts\dev.ps1 compose
+.\scripts\dev.ps1 api
+.\scripts\dev.ps1 frontend
+.\scripts\dev.ps1 migrate
+.\scripts\dev.ps1 test-api
+```
