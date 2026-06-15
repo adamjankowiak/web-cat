@@ -2,6 +2,11 @@
 
 Ten model jest propozycja startowa. Powinien byc prosty, ale pozwalac na rozwoj funkcji CAT bez przepisywania bazy od zera.
 
+Po Etapie 1 model bazowy jest wdrozony w SQLAlchemy i migracji Alembic:
+
+- modele: `apps/api/src/cat_api/models/`,
+- migracja: `apps/api/alembic/versions/0001_initial.py`.
+
 ## Encje glowne
 
 ### User
@@ -14,6 +19,7 @@ Ten model jest propozycja startowa. Powinien byc prosty, ale pozwalac na rozwoj 
 ### Project
 
 - `id`
+- `owner_id`
 - `name`
 - `source_language`
 - `target_language`
@@ -62,6 +68,7 @@ Indeksy startowe: `normalized_source_text`, para jezykowa, opcjonalnie indeks tr
 ### GlossaryTerm
 
 - `id`
+- `project_id`
 - `source_language`
 - `target_language`
 - `source_term`
@@ -84,10 +91,22 @@ Indeksy startowe: `normalized_source_text`, para jezykowa, opcjonalnie indeks tr
 
 ## Relacje
 
+- Uzytkownik moze byc wlascicielem wielu projektow.
 - Projekt ma wiele dokumentow.
 - Dokument ma wiele segmentow.
 - Projekt moze ograniczac widocznosc wpisow pamieci tlumaczen i slownika.
 - Segment po zatwierdzeniu moze tworzyc wpis w pamieci tlumaczen.
+
+## Indeksy i ograniczenia z Etapu 1
+
+- `documents.project_id`
+- `segments.document_id`
+- unikalna para `segments.document_id` + `segments.position`
+- `translation_memory_entries.normalized_source_text`
+- trigramowy indeks GIN na `translation_memory_entries.normalized_source_text`
+- para jezykowa i domena dla `translation_memory_entries`
+- para jezykowa i domena dla `glossary_terms`
+- unikalna para `spellcheck_ignores.project_id` + `language` + `word`
 
 ## Normalizacja tekstu
 

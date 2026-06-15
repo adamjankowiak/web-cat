@@ -15,6 +15,13 @@ Funkcje startowe:
 - panel słownika,
 - panel sprawdzania pisowni.
 
+Stan po Etapie 1:
+
+- istnieje statyczny widok edytora z lista segmentow, aktywnym segmentem i polem targetu,
+- istnieja statyczne panele pamieci tlumaczen, slownika i spellchecka,
+- przyciski zapisu, zatwierdzania i wyszukiwania sa przygotowane wizualnie, ale nie sa jeszcze polaczone z API,
+- zapis roboczy, import dokumentow i prawdziwe segmenty z bazy sa zakresem Etapu 2.
+
 ## Pamięć tłumaczeń
 
 Pamięć tłumaczeń ma zwracać sugestie na podstawie segmentu źródłowego.

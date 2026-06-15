@@ -72,3 +72,20 @@ Ryzyka: większa złożoność, wymagania sprzętowe i konieczność oceny jako�
 ## Proponowany wybór na start
 
 Najbardziej praktyczny start to React + Vite, FastAPI, PostgreSQL, RapidFuzz, LanguageTool/Hunspell i Docker Compose. Potem można dodać `pgvector` oraz model embeddingowy do semantycznej pamięci tłumaczeń.
+
+## Stan po Etapie 1
+
+W repozytorium wdrożono fundament rekomendowanego stacku:
+
+- Frontend: React, TypeScript i Vite.
+- Backend: FastAPI, Pydantic Settings, SQLAlchemy i Alembic.
+- Baza danych: PostgreSQL w Docker Compose.
+- Usługi pomocnicze: Redis w Docker Compose, przygotowany pod przyszłe zadania asynchroniczne.
+- Kontrakt API: startowy OpenAPI w `libs/shared/contracts/openapi.yaml`.
+
+Elementy wymienione w wariancie rekomendowanym, ale jeszcze niewdrożone funkcjonalnie:
+
+- TanStack Query i Zustand.
+- Worker RQ/Celery.
+- RapidFuzz, Hunspell/LanguageTool.
+- `pgvector` i embeddingi.

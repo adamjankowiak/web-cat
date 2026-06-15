@@ -1,12 +1,21 @@
 ﻿# Plan etapow
 
-## Etap 1: Fundament repozytorium
+## Etap 1: Fundament repozytorium - zakonczony
 
-- Ustalic wariant stacku technologicznego.
-- Przygotowac Docker Compose albo lokalne skrypty uruchomieniowe.
-- Dodac minimalny backend z endpointem healthcheck.
-- Dodac minimalny frontend z widokiem edytora.
-- Przygotowac bazowy model danych i migracje.
+- Ustalono wariant stacku technologicznego: FastAPI, React/Vite, PostgreSQL, SQLAlchemy/Alembic i Docker Compose.
+- Przygotowano Docker Compose, Dockerfile API/frontendu, `Makefile`, `.env.example` i `scripts/dev.ps1`.
+- Dodano minimalny backend FastAPI z endpointem `GET /health`.
+- Dodano minimalny frontend React/Vite z widokiem edytora CAT i panelami pomocniczymi.
+- Przygotowano bazowy model danych i migracje Alembic.
+- Dodano startowy kontrakt OpenAPI i wspolne typy API.
+
+Artefakty Etapu 1:
+
+- `docker-compose.yml`
+- `apps/api/src/cat_api/main.py`
+- `apps/api/alembic/versions/0001_initial.py`
+- `apps/frontend/src/features/editor/TranslationEditor.tsx`
+- `libs/shared/contracts/openapi.yaml`
 
 ## Etap 2: Dokumenty i segmentacja
 
