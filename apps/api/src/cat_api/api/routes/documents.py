@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
@@ -13,6 +13,7 @@ from cat_api.schemas.document import (
     SegmentRead,
 )
 from cat_api.services.segmentation import segment_text
+from cat_api.services.import_export import export_document_txt, export_document_xliff
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -79,6 +80,34 @@ def list_document_segments(
     return list(document.segments)
 
 
+@router.get("/{document_id}/export.txt")
+def export_txt_document(
+    document_id: UUID,
+    session: Session = Depends(get_session),
+) -> Response:
+    document = _get_document_or_404(document_id, session)
+    return Response(
+        content=export_document_txt(document),
+        media_type="text/plain; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{_export_filename(document, "txt")}"'},
+    )
+
+
+@router.get("/{document_id}/export.xliff")
+def export_xliff_document(
+    document_id: UUID,
+    session: Session = Depends(get_session),
+) -> Response:
+    document = _get_document_or_404(document_id, session)
+    return Response(
+        content=export_document_xliff(document),
+        media_type="application/x-xliff+xml",
+        headers={
+            "Content-Disposition": f'attachment; filename="{_export_filename(document, "xliff")}"'
+        },
+    )
+
+
 def _resolve_project(payload: DocumentImportRequest, session: Session) -> Project:
     if payload.project_id is not None:
         project = session.get(Project, payload.project_id)
@@ -116,3 +145,12 @@ def _get_document_or_404(document_id: UUID, session: Session) -> Document:
 
 def _read_segments(document: Document) -> list[SegmentRead]:
     return [SegmentRead.model_validate(segment) for segment in document.segments]
+
+
+def _export_filename(document: Document, extension: str) -> str:
+    filename = document.filename.rsplit(".", maxsplit=1)[0] or "document"
+    safe_filename = "".join(
+        character if character.isalnum() or character in {"-", "_"} else "_"
+        for character in filename
+    ).strip("_")
+    return f"{safe_filename or 'document'}.{extension}"

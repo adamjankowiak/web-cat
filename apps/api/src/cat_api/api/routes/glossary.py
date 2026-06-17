@@ -20,6 +20,7 @@ from cat_api.services.glossary import (
     search_glossary_terms,
     update_glossary_term,
 )
+from cat_api.services.import_export import export_tbx, import_tbx
 
 router = APIRouter(prefix="/glossary", tags=["glossary"])
 
@@ -117,6 +118,52 @@ def import_csv(
 ) -> GlossaryImportResponse:
     try:
         terms = import_glossary_csv(session, csv_content)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    session.commit()
+
+    for term in terms:
+        session.refresh(term)
+
+    return GlossaryImportResponse(
+        imported_count=len(terms),
+        terms=[GlossaryTermRead.model_validate(term) for term in terms],
+    )
+
+
+@router.get("/export.tbx")
+def export_tbx_terms(
+    source_language: str | None = None,
+    target_language: str | None = None,
+    domain: str | None = None,
+    project_id: UUID | None = None,
+    session: Session = Depends(get_session),
+) -> Response:
+    return Response(
+        content=export_tbx(
+            session,
+            source_language=source_language,
+            target_language=target_language,
+            domain=domain,
+            project_id=project_id,
+        ),
+        media_type="application/xml",
+        headers={"Content-Disposition": 'attachment; filename="glossary.tbx"'},
+    )
+
+
+@router.post(
+    "/import-tbx",
+    response_model=GlossaryImportResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def import_tbx_terms(
+    tbx_content: str = Body(media_type="application/xml"),
+    session: Session = Depends(get_session),
+) -> GlossaryImportResponse:
+    try:
+        terms = import_tbx(session, tbx_content)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 

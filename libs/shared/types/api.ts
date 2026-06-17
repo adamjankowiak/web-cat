@@ -68,6 +68,11 @@ export type TranslationMemorySearchResponse = {
   suggestions: TranslationMemorySuggestion[];
 };
 
+export type TranslationMemoryImportResponse = {
+  imported_count: number;
+  entries: TranslationMemoryEntry[];
+};
+
 export type GlossaryTerm = {
   id: string;
   project_id?: string | null;

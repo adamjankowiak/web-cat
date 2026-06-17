@@ -50,3 +50,8 @@ class TranslationMemorySuggestion(BaseModel):
 
 class TranslationMemorySearchResponse(BaseModel):
     suggestions: list[TranslationMemorySuggestion]
+
+
+class TranslationMemoryImportResponse(BaseModel):
+    imported_count: int
+    entries: list[TranslationMemoryEntryRead]

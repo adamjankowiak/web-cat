@@ -102,6 +102,58 @@ paths:
                   $ref: "#/components/schemas/Segment"
         "404":
           description: Document was not found.
+  /documents/{document_id}/export.txt:
+    get:
+      summary: Export translated document as TXT
+      operationId: exportTxtDocument
+      tags:
+        - documents
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Plain text document ordered by segment position. Missing targets fall back to source text.
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+          content:
+            text/plain:
+              schema:
+                type: string
+        "404":
+          description: Document was not found.
+  /documents/{document_id}/export.xliff:
+    get:
+      summary: Export working document as XLIFF
+      operationId: exportXliffDocument
+      tags:
+        - documents
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Minimal XLIFF 1.2 document with source, target, status and languages.
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+          content:
+            application/x-xliff+xml:
+              schema:
+                type: string
+        "404":
+          description: Document was not found.
   /segments/{segment_id}:
     patch:
       summary: Save draft translation or segment status
@@ -254,6 +306,66 @@ paths:
           description: Entry deleted.
         "404":
           description: Translation memory entry was not found.
+  /translation-memory/export.tmx:
+    get:
+      summary: Export translation memory as TMX
+      operationId: exportTranslationMemoryTmx
+      tags:
+        - translation-memory
+      parameters:
+        - name: source_language
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: target_language
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: domain
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: project_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: TMX export for matching translation memory entries.
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+          content:
+            application/xml:
+              schema:
+                type: string
+  /translation-memory/import-tmx:
+    post:
+      summary: Import translation memory from TMX
+      operationId: importTranslationMemoryTmx
+      tags:
+        - translation-memory
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              type: string
+      responses:
+        "201":
+          description: Imported or reused translation memory entries.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranslationMemoryImportResponse"
+        "400":
+          description: TMX XML or minimal structure is invalid.
   /glossary/search:
     post:
       summary: Search glossary terms in source text
@@ -394,6 +506,66 @@ paths:
                 $ref: "#/components/schemas/GlossaryImportResponse"
         "400":
           description: CSV header or rows are invalid.
+  /glossary/export.tbx:
+    get:
+      summary: Export glossary as TBX
+      operationId: exportGlossaryTbx
+      tags:
+        - glossary
+      parameters:
+        - name: source_language
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: target_language
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: domain
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: project_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: TBX export for matching glossary terms.
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+          content:
+            application/xml:
+              schema:
+                type: string
+  /glossary/import-tbx:
+    post:
+      summary: Import glossary terms from TBX
+      operationId: importGlossaryTbx
+      tags:
+        - glossary
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              type: string
+      responses:
+        "201":
+          description: Imported or reused glossary terms.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GlossaryImportResponse"
+        "400":
+          description: TBX XML or minimal structure is invalid.
   /spellcheck:
     post:
       summary: Check target text spelling
@@ -754,6 +926,19 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TranslationMemorySuggestion"
+    TranslationMemoryImportResponse:
+      type: object
+      required:
+        - imported_count
+        - entries
+      properties:
+        imported_count:
+          type: integer
+          minimum: 0
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/TranslationMemoryEntry"
     TranslationMemorySuggestion:
       type: object
       required:

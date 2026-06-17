@@ -197,6 +197,14 @@ export async function getDocument(documentId: string): Promise<DocumentDetailRea
   return requestJson<DocumentDetailRead>(`/documents/${documentId}`);
 }
 
+export async function exportDocumentTxt(documentId: string): Promise<void> {
+  await downloadFile(`/documents/${documentId}/export.txt`);
+}
+
+export async function exportDocumentXliff(documentId: string): Promise<void> {
+  await downloadFile(`/documents/${documentId}/export.xliff`);
+}
+
 export async function importTxtDocument(
   payload: DocumentImportRequest
 ): Promise<DocumentDetailRead> {
@@ -240,6 +248,15 @@ export async function searchTranslationMemory(
   });
 }
 
+export async function exportTranslationMemoryTmx(filters?: {
+  source_language?: string;
+  target_language?: string;
+  domain?: string | null;
+  project_id?: string | null;
+}): Promise<void> {
+  await downloadFile(`/translation-memory/export.tmx${formatQuery(filters)}`);
+}
+
 export async function searchGlossary(
   payload: GlossarySearchRequest
 ): Promise<GlossarySearchResponse> {
@@ -250,6 +267,15 @@ export async function searchGlossary(
     },
     method: "POST"
   });
+}
+
+export async function exportGlossaryTbx(filters?: {
+  source_language?: string;
+  target_language?: string;
+  domain?: string | null;
+  project_id?: string | null;
+}): Promise<void> {
+  await downloadFile(`/glossary/export.tbx${formatQuery(filters)}`);
 }
 
 export async function checkSpelling(
@@ -287,6 +313,30 @@ export async function listSpellcheckIgnoredWords(
   }
 
   return requestJson<SpellcheckIgnoreRead[]>(`/spellcheck/ignore?${params.toString()}`);
+}
+
+async function downloadFile(path: string): Promise<void> {
+  const response = await fetch(`${apiBaseUrl}${path}`);
+  const responseText = response.ok ? null : await response.text();
+
+  if (!response.ok) {
+    const payload = parseResponsePayload(responseText ?? "");
+    throw new ApiError(
+      formatApiErrorMessage(payload, response.status),
+      response.status,
+      payload
+    );
+  }
+
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = getDownloadFilename(response.headers.get("Content-Disposition"));
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(objectUrl);
 }
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
@@ -333,6 +383,37 @@ function formatApiErrorMessage(payload: unknown, status: number): string {
   }
 
   return `API request failed with status ${status}`;
+}
+
+function formatQuery(
+  filters:
+    | {
+        source_language?: string;
+        target_language?: string;
+        domain?: string | null;
+        project_id?: string | null;
+      }
+    | undefined
+): string {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(filters ?? {})) {
+    if (value) {
+      params.set(key, value);
+    }
+  }
+
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
+function getDownloadFilename(contentDisposition: string | null): string {
+  if (!contentDisposition) {
+    return "web-cat-export";
+  }
+
+  const match = /filename="?(?<filename>[^"]+)"?/i.exec(contentDisposition);
+  return match?.groups?.filename ?? "web-cat-export";
 }
 
 export function isTerminologyValidationDetail(

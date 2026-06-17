@@ -1,10 +1,14 @@
-import { CheckCircle2, FileText, Save, Search, Upload } from "lucide-react";
+import { CheckCircle2, Download, FileText, Save, Search, Upload } from "lucide-react";
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   ApiError,
   approveSegment,
+  exportDocumentTxt,
+  exportDocumentXliff,
+  exportGlossaryTbx,
+  exportTranslationMemoryTmx,
   formatTerminologyViolations,
   getDocument,
   importTxtDocument,
@@ -45,6 +49,7 @@ export function TranslationEditor({
   const [activeSegmentId, setActiveSegmentId] = useState<string | null>(null);
   const [detail, setDetail] = useState<DocumentDetailRead | null>(null);
   const [editorState, setEditorState] = useState<EditorState>("loading");
+  const [exporting, setExporting] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -178,12 +183,65 @@ export function TranslationEditor({
 
       syncDocument(importedDocument);
       setEditorState("ready");
+      setMessage("TXT import completed.");
     } catch (error) {
       setMessage(getErrorMessage(error));
       setEditorState(detail ? "ready" : "error");
     } finally {
       setIsImporting(false);
     }
+  }
+
+  async function handleExport(
+    exportType: "txt" | "xliff" | "tmx" | "tbx",
+    action: () => Promise<void>
+  ) {
+    if (!detail) {
+      setMessage("Load a document before exporting.");
+      return;
+    }
+
+    setExporting(exportType);
+    setMessage(null);
+
+    try {
+      await persistActiveSegment();
+      await action();
+      setMessage(`${exportType.toUpperCase()} export started.`);
+    } catch (error) {
+      setMessage(getErrorMessage(error));
+    } finally {
+      setExporting(null);
+    }
+  }
+
+  async function persistActiveSegment() {
+    if (!activeSegment) {
+      return;
+    }
+
+    const currentTarget = targets[activeSegment.id] ?? "";
+
+    if ((activeSegment.target_text ?? "") === currentTarget) {
+      return;
+    }
+
+    const updatedSegment = await updateSegment(activeSegment.id, {
+      target_text: currentTarget
+    });
+    replaceSegment(updatedSegment);
+  }
+
+  function activeDocumentFilters() {
+    if (!detail) {
+      return undefined;
+    }
+
+    return {
+      source_language: detail.document.source_language,
+      target_language: detail.document.target_language,
+      project_id: detail.document.project_id
+    };
   }
 
   async function handleSaveDraft() {
@@ -272,6 +330,47 @@ export function TranslationEditor({
               <span>{detail.document.filename}</span>
             </div>
           ) : null}
+
+          <div className="export-grid" aria-label="Export actions">
+            <button
+              className="command-button command-button--full"
+              disabled={!detail || exporting !== null}
+              onClick={() => handleExport("txt", () => exportDocumentTxt(detail!.document.id))}
+              type="button"
+            >
+              <Download size={16} aria-hidden="true" />
+              {exporting === "txt" ? "Exporting TXT" : "Export TXT"}
+            </button>
+            <button
+              className="command-button command-button--full"
+              disabled={!detail || exporting !== null}
+              onClick={() => handleExport("xliff", () => exportDocumentXliff(detail!.document.id))}
+              type="button"
+            >
+              <Download size={16} aria-hidden="true" />
+              {exporting === "xliff" ? "Exporting XLIFF" : "Export XLIFF"}
+            </button>
+            <button
+              className="command-button command-button--full"
+              disabled={!detail || exporting !== null}
+              onClick={() =>
+                handleExport("tmx", () => exportTranslationMemoryTmx(activeDocumentFilters()))
+              }
+              type="button"
+            >
+              <Download size={16} aria-hidden="true" />
+              {exporting === "tmx" ? "Exporting TMX" : "Export TMX"}
+            </button>
+            <button
+              className="command-button command-button--full"
+              disabled={!detail || exporting !== null}
+              onClick={() => handleExport("tbx", () => exportGlossaryTbx(activeDocumentFilters()))}
+              type="button"
+            >
+              <Download size={16} aria-hidden="true" />
+              {exporting === "tbx" ? "Exporting TBX" : "Export TBX"}
+            </button>
+          </div>
         </div>
 
         <div className="segment-list">

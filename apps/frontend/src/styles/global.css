@@ -171,6 +171,18 @@ button:disabled {
   width: 100%;
 }
 
+.export-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.export-grid .command-button {
+  font-size: 12px;
+  min-height: 34px;
+  padding: 0 8px;
+}
+
 .field-label {
   display: grid;
   gap: 6px;
