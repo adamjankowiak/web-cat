@@ -127,10 +127,31 @@ Artefakty Etapu 6:
 - `apps/api/tests/test_import_export.py`
 - `libs/shared/contracts/openapi.yaml`
 
-## Etap 7: Jakosc i prezentacja
+## Etap 7: Jakosc i prezentacja - zakonczony
 
-- Dodac testy jednostkowe backendu.
-- Dodac testy komponentow frontendu.
-- Dodac test e2e przeplywu: import, tlumaczenie, sugestia TM, spellcheck, eksport.
-- Przygotowac dane demonstracyjne.
-- Opisac ograniczenia i mozliwe rozszerzenia.
+- Dodano wspolny backendowy fixture testowy dla nowych testow integracyjnych na SQLite.
+- Dodano test przeplywu MVP obejmujacy import dokumentu, segmentacje, zapis draftu,
+  zatwierdzenie segmentu, zapis do TM, sugestie TM dla podobnego segmentu, wyszukiwanie
+  slownika, walidacje terminologii, spellcheck oraz eksport/import TMX i TBX.
+- Dodano Vitest, React Testing Library i testy komponentow edytora, panelu TM, slownika
+  oraz spellchecka z mockowanym klientem API.
+- Dodano Playwright e2e dla glownego przeplywu MVP z deterministycznymi mockami API.
+- Przygotowano male dane demonstracyjne EN-PL dla domeny software/CAT w `data/samples`.
+- Dodano pipeline GitHub Actions dla testow backendu, ruff, builda frontendu, testow
+  komponentow i testu e2e.
+- Uporzadkowano README pod prezentacje projektu, komendy weryfikacyjne, scenariusz demo,
+  ograniczenia MVP i mozliwe rozszerzenia.
+
+Artefakty Etapu 7:
+
+- `apps/api/tests/conftest.py`
+- `apps/api/tests/test_mvp_flow.py`
+- `apps/frontend/src/features/editor/TranslationEditor.test.tsx`
+- `apps/frontend/src/features/translation-memory/TranslationMemoryPanel.test.tsx`
+- `apps/frontend/src/features/glossary/GlossaryPanel.test.tsx`
+- `apps/frontend/src/features/spellcheck/SpellcheckPanel.test.tsx`
+- `apps/frontend/playwright.config.ts`
+- `tests/e2e/editor.spec.ts`
+- `data/samples/`
+- `.github/workflows/ci.yml`
+- `README.md`

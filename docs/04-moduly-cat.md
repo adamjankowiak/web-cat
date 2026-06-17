@@ -198,3 +198,22 @@ Reguły QA po MVP:
 - zgodność terminologii wymaganej,
 - ostrzeżenia dla segmentów nietłumaczalnych,
 - metryki BLEU/WER dla korpusów testowych.
+
+## Finalny scenariusz MVP po Etapie 7
+
+Scenariusz demonstracyjny jest spojny dla pary EN-PL i domeny software/CAT:
+
+1. Uzytkownik importuje `data/samples/documents/software-cat-source.txt` przez frontend.
+2. Backend segmentuje dokument i zapisuje segmenty w kolejnosci `position`.
+3. Uzytkownik wybiera pierwszy segment, wpisuje target z bledem, np. `Zapisz plk.`.
+4. Panel spellcheck zwraca blad `plk` i sugestie `plik`; uzytkownik stosuje sugestie.
+5. Uzytkownik zatwierdza segment, a backend waliduje terminologie i zapisuje pare do TM.
+6. Uzytkownik otwiera podobny segment `Save the file before closing the window.`.
+7. Panel TM pokazuje sugestie fuzzy na podstawie zatwierdzonego lub zaimportowanego wpisu TMX.
+8. Panel slownika pokazuje terminy takie jak `file -> plik`, `window -> okno` oraz
+   `translation memory -> pamiec tlumaczen`.
+9. Przy approve backend blokuje brakujace terminy wymagane i terminy zakazane, a poprawny
+   segment zapisuje do pamieci tlumaczen.
+10. Uzytkownik eksportuje dokument jako TXT albo XLIFF oraz moze pobrac TMX i TBX.
+
+Ten scenariusz jest pokryty testem integracyjnym backendu oraz testem e2e frontendu.

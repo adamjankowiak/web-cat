@@ -133,3 +133,17 @@ Przykladowe zapytanie:
 - Backend powinien zwracac `score` i uzasadnienie typu dopasowania.
 - Spellcheck powinien zwracac pozycje bledow, a nie tylko liste slow.
 - Importy i reindeksowanie powinny byc zadaniami asynchronicznymi, jesli trwaja dluzej niz kilka sekund.
+
+## Status finalny MVP po Etapie 7
+
+- Kontrakty wdrozone w backendzie obejmuja healthcheck, dokumenty, segmenty, pamiec
+  tlumaczen, slownik, spellcheck oraz eksport/import TXT, XLIFF, TMX i TBX zgodnie ze
+  stanem opisanym po Etapie 6.
+- Etap 7 nie zmienial powierzchni API; domknal testowalnosc, dane demo, CI i dokumentacje.
+- Frontend korzysta z klienta `apps/frontend/src/lib/api-client.ts`, ktory mapuje endpointy
+  MVP i obsluguje bledy API, w tym walidacje terminologii `409`.
+- Test `apps/api/tests/test_mvp_flow.py` sprawdza kompatybilnosc najwazniejszych kontraktow
+  w jednym przeplywie: import TXT, PATCH segmentu, approve, TM search, glossary search,
+  spellcheck, export TXT, import/export TMX i import/export TBX.
+- Kontrakt OpenAPI w `libs/shared/contracts/openapi.yaml` pozostaje referencja wspoldzielona.
+  Automatyczna walidacja OpenAPI w CI jest swiadomie odlozona jako rozszerzenie po MVP.

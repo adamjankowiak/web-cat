@@ -93,6 +93,16 @@ Po Etapie 6 dodano testy:
 - importu TBX i zapisu terminu slownikowego,
 - walidacji niepoprawnej struktury TBX.
 
+Po Etapie 7 dodano:
+
+- wspolna fixture `test_client` w `apps/api/tests/conftest.py` dla nowych testow
+  integracyjnych na deterministycznym SQLite in-memory,
+- test przeplywu MVP w `apps/api/tests/test_mvp_flow.py`, ktory laczy import dokumentu,
+  segmentacje, zapis draftu, approve, zapis do TM, sugestie TM dla podobnego segmentu,
+  wyszukiwanie slownika, walidacje terminologii, spellcheck, eksport TXT oraz import/eksport
+  TMX i TBX,
+- lacznie 42 testy backendu uruchamiane przez `python -m pytest`.
+
 Weryfikacja Etapu 4:
 
 - `cd apps/api && python -m pytest` - przechodzi,
@@ -111,6 +121,15 @@ Weryfikacja Etapu 6:
 - `cd apps/api && python -m ruff check .` - przechodzi,
 - `cd apps/frontend && npm run build` - przechodzi.
 
+Weryfikacja finalna MVP po Etapie 7:
+
+- `cd apps/api && python -m pytest` - przechodzi,
+- `cd apps/api && python -m ruff check .` - przechodzi,
+- `cd apps/frontend && npm run build` - przechodzi,
+- `cd apps/frontend && npm run test` - przechodzi,
+- `cd apps/frontend && npm run test:e2e` - przechodzi po instalacji przegladarki przez
+  `npx playwright install chromium`.
+
 ## Testy frontendu
 
 Zakres minimalny:
@@ -120,6 +139,18 @@ Zakres minimalny:
 - pokazanie sugestii TM,
 - pokazanie terminow slownikowych,
 - pokazanie bledow pisowni.
+
+Stan finalny MVP:
+
+- frontend uzywa Vitest, React Testing Library, `@testing-library/jest-dom` i `user-event`,
+- `apps/frontend/package.json` zawiera skrypty `test` i `test:e2e`,
+- `apps/frontend/vite.config.ts` ma srodowisko testowe `jsdom` i setup testowy,
+- test edytora obejmuje stan pusty, import TXT, wybor segmentu, zapis targetu,
+  approve i blad API,
+- test panelu TM obejmuje pobranie sugestii, zastosowanie sugestii i blad API,
+- test panelu slownika obejmuje wyswietlanie terminu, uzycie terminu i stan pusty,
+- test panelu spellcheck obejmuje sprawdzenie targetu, zastosowanie sugestii,
+  ignorowanie slowa i blad API.
 
 ## Test e2e
 
@@ -134,15 +165,35 @@ Scenariusz demonstracyjny:
 7. Otworz podobny segment i sprawdz sugestie z pamieci tlumaczen.
 8. Wyeksportuj wynik.
 
+Stan finalny MVP:
+
+- test jest w `tests/e2e/editor.spec.ts`,
+- konfiguracja jest w `apps/frontend/playwright.config.ts`,
+- fixture importu jest w `tests/fixtures/sample_source.txt`,
+- test uruchamia frontend Vite przez `webServer` i mockuje API, dzieki czemu nie wymaga
+  lokalnej bazy danych,
+- scenariusz obejmuje import TXT, wybor segmentu, wpisanie `Zapisz plk.`, spellcheck,
+  zastosowanie sugestii `plik`, zatwierdzenie segmentu, sugestie TM dla podobnego segmentu,
+  terminy slownikowe i eksport TXT.
+
 ## CI
 
-Minimalny pipeline:
+Minimalny pipeline planowany:
 
 - lint frontendu,
 - testy frontendu,
 - testy backendu,
 - walidacja OpenAPI,
 - build obrazow Docker bez publikacji.
+
+Stan finalny MVP:
+
+- dodano `.github/workflows/ci.yml`,
+- job backendowy instaluje `apps/api`, uruchamia `python -m pytest` i
+  `python -m ruff check .`,
+- job frontendowy uruchamia `npm ci`, `npm run build`, `npm run test`,
+  `npx playwright install --with-deps chromium` i `npm run test:e2e`,
+- walidacja OpenAPI i build obrazow Docker pozostaja rozszerzeniami po MVP.
 
 ## Dane demonstracyjne
 
@@ -152,3 +203,14 @@ Dane demo powinny byc male i przewidywalne:
 - jeden slownik domeny software,
 - jeden plik tekstowy do importu,
 - kilka celowych bledow pisowni w tlumaczeniu docelowym.
+
+Stan finalny MVP:
+
+- `data/samples/documents/software-cat-source.txt`,
+- `data/samples/translation-memory/software-cat-memory.tmx`,
+- `data/samples/glossaries/software-cat-glossary.csv`,
+- `data/samples/glossaries/software-cat-glossary.tbx`,
+- `data/samples/spellcheck-target-with-error.txt`.
+
+Dane wspieraja jeden spojny scenariusz EN-PL dla domeny software/CAT i sa opisane
+w `README.md`.

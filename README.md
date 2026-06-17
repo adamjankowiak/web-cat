@@ -1,49 +1,69 @@
-﻿# web-cat
+# web-cat
 
-Webowa platforma CAT (Computer-Assisted Translation) do wspomagania pracy tłumacza.
+Webowa platforma CAT (Computer-Assisted Translation) wspierajaca przeplyw pracy tlumacza
+nad segmentowanym dokumentem EN-PL. MVP laczy edytor segmentow, pamiec tlumaczen,
+slownik kontekstowy, walidacje terminologii, prosty spellcheck oraz eksport formatow CAT.
 
-## Główna idea
+## Co jest wdrozone w MVP
 
-Projekt ma być samodzielną, ciekawą platformą CAT, a nie prostym przepisaniem notebooków laboratoryjnych. Notebooki z `translation-labs` są tylko opcjonalnym tłem: pokazują techniki, które były już przećwiczone, ale decyzje projektowe powinny wynikać z wymagań aplikacji.
-
-Najciekawszy kierunek to edytor CAT z hybrydową pamięcią tłumaczeń: exact match, fuzzy match, semantyczne podobieństwo, słownik kontekstowy, kontrola terminologii i sprawdzanie pisowni po stronie docelowej.
-
-## Zakres MVP
-
-- Webowy frontend z edytorem segmentów.
-- Pamięć tłumaczeń: dokładne i rozmyte dopasowania segmentów.
-- Słownik kontekstowy: terminy, definicje, przykłady użycia i ograniczenia domenowe.
-- Sprawdzanie pisowni po stronie języka docelowego.
+- Import dokumentu TXT i segmentacja po zdaniach albo akapitach.
+- Edytor webowy z lista segmentow, aktywnym segmentem, zapisem draftu i zatwierdzaniem.
+- Pamiec tlumaczen: exact match, fuzzy match przez RapidFuzz i zapis segmentu po approve.
+- Slownik kontekstowy: CRUD, import CSV, import/eksport TBX, terminy wymagane i zakazane.
+- Walidacja terminologii przy zatwierdzaniu segmentu.
+- Spellcheck tekstu docelowego z lokalnym deterministycznym slownikiem dla `pl`, `en` i `de`.
+- Eksport dokumentu do TXT i XLIFF.
+- Import/eksport pamieci tlumaczen w minimalnym subsetcie TMX.
+- Testy backendu, testy komponentow frontendu, test e2e MVP i pipeline GitHub Actions.
 
 ## Struktura
 
-- `apps/frontend` - aplikacja webowa.
-- `apps/api` - backend HTTP/API.
-- `apps/worker` - zadania asynchroniczne, np. import, indeksowanie, analiza dokumentów.
-- `libs/shared` - wspólne kontrakty API i typy.
-- `libs/nlp` - logika segmentacji, fuzzy matchingu i sprawdzania pisowni.
-- `data` - przykładowe dane developerskie.
-- `docs` - decyzje architektoniczne i plan prac.
-- `infra` - konfiguracje Docker, Postgres, Nginx.
-- `notebooks` - opcjonalne notebooki lub eksporty z laboratoriów.
-- `tests` - testy end-to-end i fixture'y.
+- `apps/api` - backend FastAPI, SQLAlchemy, Alembic i testy backendu.
+- `apps/frontend` - frontend React/Vite, Vitest, React Testing Library i Playwright.
+- `libs/shared` - wspolne kontrakty API i typy.
+- `data/samples` - male dane demonstracyjne EN-PL dla domeny software/CAT.
+- `docs` - plan etapow, model danych, moduly CAT, kontrakty API oraz DevOps/testy.
+- `infra` - konfiguracje Docker.
+- `tests` - test e2e i fixture'y.
 
-## Dokumentacja projektowa
+## Uruchomienie lokalne
 
-- [Wprowadzenie](docs/00-wprowadzenie.md)
-- [Stack i architektura](docs/01-stack-i-architektura.md)
-- [Plan etapów](docs/02-plan-etapow.md)
-- [Model danych](docs/03-model-danych.md)
-- [Moduły CAT](docs/04-moduly-cat.md)
-- [Notebooki i eksperymenty](docs/05-notebooks-i-eksperymenty.md)
-- [Kontrakty API](docs/06-api-kontrakty.md)
-- [DevOps i testy](docs/07-devops-i-testy.md)
-- [Opcjonalna mapa laboratoriów](docs/08-mapa-laboratoriow.md)
-- [Koncepcja projektu i narzędzia](docs/09-koncepcja-projektu-i-narzedzia.md)
+Backend:
 
-## Uruchomienie
+```powershell
+Copy-Item .env.example .env
+cd apps/api
+python -m pip install -e .[dev]
+alembic upgrade head
+python -m uvicorn cat_api.main:app --reload
+```
 
-Wariant kontenerowy:
+Frontend:
+
+```powershell
+cd apps/frontend
+npm install
+npm run dev
+```
+
+Adresy po starcie:
+
+- API: `http://localhost:8000/health`
+- OpenAPI FastAPI: `http://localhost:8000/docs`
+- frontend: `http://localhost:5173`
+
+Pomocniczy skrypt PowerShell:
+
+```powershell
+.\scripts\dev.ps1 api
+.\scripts\dev.ps1 frontend
+.\scripts\dev.ps1 migrate
+.\scripts\dev.ps1 test-api
+.\scripts\dev.ps1 test-frontend
+.\scripts\dev.ps1 test-e2e
+```
+
+## Uruchomienie przez Docker
 
 ```powershell
 Copy-Item .env.example .env
@@ -51,26 +71,80 @@ docker compose up -d --build
 docker compose exec -T api alembic upgrade head
 ```
 
-Wymagania dla wariantu kontenerowego:
+Wymagania: uruchomiony Docker Desktop, aktywny Linux Engine i wolne porty `5432`,
+`6379`, `8000` oraz `5173`.
 
-- uruchomiony Docker Desktop,
-- aktywny kontekst Docker Desktop Linux Engine,
-- wolne porty `5432`, `6379`, `8000` i `5173`.
-
-Jeśli pojawi się błąd podobny do `failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine`, Docker Desktop nie działa albo Linux Engine nie zdążył jeszcze wystartować. Uruchom Docker Desktop, poczekaj aż pokaże status `Docker Desktop is running`, a potem sprawdź:
+Jesli Docker zwroci blad podobny do
+`failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine`,
+uruchom Docker Desktop, poczekaj na status `Docker Desktop is running`, a potem sprawdz:
 
 ```powershell
 docker version
 docker compose config
 ```
 
-Po starcie:
+## Testy i jakosc
 
-- API: `http://localhost:8000/health`
-- dokumentacja OpenAPI FastAPI: `http://localhost:8000/docs`
-- frontend: `http://localhost:5173`
+Backend:
 
-Szybka weryfikacja Etapu 2:
+```powershell
+cd apps/api
+python -m pytest
+python -m ruff check .
+```
+
+Frontend:
+
+```powershell
+cd apps/frontend
+npm run build
+npm run test
+```
+
+E2E:
+
+```powershell
+cd apps/frontend
+npx playwright install chromium
+npm run test:e2e
+```
+
+Test e2e uruchamia frontend Vite i mockuje odpowiedzi API, dzieki czemu nie wymaga
+lokalnego backendu ani bazy danych. Pelna integracja z prawdziwym backendem pozostaje
+mozliwa jako rozszerzenie testow po MVP.
+
+## Scenariusz demo
+
+Dane demonstracyjne sa w `data/samples`:
+
+- `data/samples/documents/software-cat-source.txt` - dokument TXT do importu.
+- `data/samples/translation-memory/software-cat-memory.tmx` - startowa pamiec tlumaczen.
+- `data/samples/glossaries/software-cat-glossary.csv` - slownik CSV.
+- `data/samples/glossaries/software-cat-glossary.tbx` - slownik TBX.
+- `data/samples/spellcheck-target-with-error.txt` - tekst z celowym bledem spellcheck.
+
+Przykladowe przygotowanie danych przez API:
+
+```powershell
+cd apps/api
+python -m uvicorn cat_api.main:app --reload
+```
+
+W drugim terminalu z katalogu glownego repozytorium:
+
+```powershell
+Invoke-RestMethod -Uri http://localhost:8000/translation-memory/import-tmx -Method Post -ContentType "application/xml" -InFile data/samples/translation-memory/software-cat-memory.tmx
+Invoke-RestMethod -Uri http://localhost:8000/glossary/import-tbx -Method Post -ContentType "application/xml" -InFile data/samples/glossaries/software-cat-glossary.tbx
+```
+
+Nastepnie w frontendzie zaimportuj `data/samples/documents/software-cat-source.txt`,
+otworz pierwszy segment, wpisz `Zapisz plk.`, uruchom spellcheck, zastosuj sugestie
+`plik`, zatwierdz segment, przejdz do podobnego segmentu i sprawdz sugestie TM oraz
+terminy slownikowe. Na koniec pobierz wynik przez `Export TXT`.
+
+## Szybkie API
+
+Import dokumentu:
 
 ```powershell
 $payload = @{
@@ -84,7 +158,7 @@ $payload = @{
 Invoke-RestMethod -Uri http://localhost:8000/documents -Method Post -ContentType "application/json" -Body $payload
 ```
 
-Szybka weryfikacja eksportu i formatow CAT z Etapu 6:
+Eksporty:
 
 ```powershell
 $document = Invoke-RestMethod -Uri http://localhost:8000/documents -Method Post -ContentType "application/json" -Body $payload
@@ -103,41 +177,27 @@ Invoke-RestMethod -Uri http://localhost:8000/translation-memory/import-tmx -Meth
 Invoke-RestMethod -Uri http://localhost:8000/glossary/import-tbx -Method Post -ContentType "application/xml" -InFile glossary.tbx
 ```
 
-Eksport TXT uzywa `target_text`, a dla segmentow bez tlumaczenia eksportuje `source_text`, zeby
-dokument roboczy nadal mozna bylo pobrac.
+## Ograniczenia MVP i rozszerzenia
 
-Wariant lokalny:
+- Spellcheck jest uproszczonym lokalnym adapterem slownikowym, a nie pelna korekta
+  gramatyczno-stylistyczna.
+- TMX, TBX i XLIFF obsluguja swiadomie ograniczony subset potrzebny do prezentacji MVP.
+- Aplikacja nie ma pelnego uwierzytelniania i wielouzytkownikowych uprawnien.
+- Importy, eksporty i indeksowanie sa synchroniczne; worker asynchroniczny jest przygotowany
+  strukturalnie, ale nie wdrozony.
+- Terminologia nie uwzglednia fleksji ani lematyzacji jezyka polskiego.
+- Naturalne rozszerzenia: LanguageTool, Hunspell, lematyzacja, import XLIFF, semantyczna
+  pamiec tlumaczen, ICE/context match, async workers i pelny model projektow/uzytkownikow.
 
-```powershell
-Copy-Item .env.example .env
-cd apps/api
-python -m pip install -e .[dev]
-alembic upgrade head
-python -m uvicorn cat_api.main:app --reload
-```
+## Dokumentacja projektowa
 
-Frontend lokalnie wymaga Node.js i NPM:
-
-```powershell
-cd apps/frontend
-npm install
-npm run dev
-```
-
-Backend wykorzystuje RapidFuzz do fuzzy matchingu pamieci tlumaczen. Zaleznosc jest instalowana
-razem z pakietem API przez:
-
-```powershell
-cd apps/api
-python -m pip install -e .[dev]
-```
-
-Pomocniczy skrypt PowerShell:
-
-```powershell
-.\scripts\dev.ps1 compose
-.\scripts\dev.ps1 api
-.\scripts\dev.ps1 frontend
-.\scripts\dev.ps1 migrate
-.\scripts\dev.ps1 test-api
-```
+- [Wprowadzenie](docs/00-wprowadzenie.md)
+- [Stack i architektura](docs/01-stack-i-architektura.md)
+- [Plan etapow](docs/02-plan-etapow.md)
+- [Model danych](docs/03-model-danych.md)
+- [Moduly CAT](docs/04-moduly-cat.md)
+- [Notebooki i eksperymenty](docs/05-notebooks-i-eksperymenty.md)
+- [Kontrakty API](docs/06-api-kontrakty.md)
+- [DevOps i testy](docs/07-devops-i-testy.md)
+- [Opcjonalna mapa laboratoriow](docs/08-mapa-laboratoriow.md)
+- [Koncepcja projektu i narzedzia](docs/09-koncepcja-projektu-i-narzedzia.md)
