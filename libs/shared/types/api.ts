@@ -135,3 +135,44 @@ export type TerminologyViolation = {
 export type TerminologyValidationError = {
   violations: TerminologyViolation[];
 };
+
+export type SpellcheckSuggestion = {
+  value: string;
+};
+
+export type SpellcheckIssue = {
+  start: number;
+  end: number;
+  token: string;
+  message: string;
+  suggestions: SpellcheckSuggestion[];
+  rule_code: string;
+  language: string;
+};
+
+export type SpellcheckRequest = {
+  language: string;
+  text: string;
+  project_id?: string | null;
+  created_by?: string | null;
+};
+
+export type SpellcheckResponse = {
+  issues: SpellcheckIssue[];
+};
+
+export type SpellcheckIgnoreCreateRequest = {
+  project_id: string;
+  language: string;
+  word: string;
+  created_by?: string | null;
+};
+
+export type SpellcheckIgnore = {
+  id: string;
+  project_id: string;
+  language: string;
+  word: string;
+  created_by?: string | null;
+  created_at: string;
+};

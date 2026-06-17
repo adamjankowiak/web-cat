@@ -130,6 +130,47 @@ export type TerminologyValidationDetail = {
   violations: TerminologyViolation[];
 };
 
+export type SpellcheckSuggestion = {
+  value: string;
+};
+
+export type SpellcheckIssue = {
+  start: number;
+  end: number;
+  token: string;
+  message: string;
+  suggestions: SpellcheckSuggestion[];
+  rule_code: string;
+  language: string;
+};
+
+export type SpellcheckRequest = {
+  language: string;
+  text: string;
+  project_id?: string | null;
+  created_by?: string | null;
+};
+
+export type SpellcheckResponse = {
+  issues: SpellcheckIssue[];
+};
+
+export type SpellcheckIgnoreCreateRequest = {
+  project_id: string;
+  language: string;
+  word: string;
+  created_by?: string | null;
+};
+
+export type SpellcheckIgnoreRead = {
+  id: string;
+  project_id: string;
+  language: string;
+  word: string;
+  created_by: string | null;
+  created_at: string;
+};
+
 export class ApiError extends Error {
   detail: unknown;
   status: number;
@@ -209,6 +250,43 @@ export async function searchGlossary(
     },
     method: "POST"
   });
+}
+
+export async function checkSpelling(
+  payload: SpellcheckRequest
+): Promise<SpellcheckResponse> {
+  return requestJson<SpellcheckResponse>("/spellcheck", {
+    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json"
+    },
+    method: "POST"
+  });
+}
+
+export async function ignoreSpellcheckWord(
+  payload: SpellcheckIgnoreCreateRequest
+): Promise<SpellcheckIgnoreRead> {
+  return requestJson<SpellcheckIgnoreRead>("/spellcheck/ignore", {
+    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json"
+    },
+    method: "POST"
+  });
+}
+
+export async function listSpellcheckIgnoredWords(
+  projectId: string,
+  language?: string
+): Promise<SpellcheckIgnoreRead[]> {
+  const params = new URLSearchParams({ project_id: projectId });
+
+  if (language) {
+    params.set("language", language);
+  }
+
+  return requestJson<SpellcheckIgnoreRead[]>(`/spellcheck/ignore?${params.toString()}`);
 }
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {

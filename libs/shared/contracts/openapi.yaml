@@ -394,6 +394,100 @@ paths:
                 $ref: "#/components/schemas/GlossaryImportResponse"
         "400":
           description: CSV header or rows are invalid.
+  /spellcheck:
+    post:
+      summary: Check target text spelling
+      operationId: checkSpelling
+      tags:
+        - spellcheck
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SpellcheckRequest"
+      responses:
+        "200":
+          description: Spelling issues found in the submitted target text.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpellcheckResponse"
+        "400":
+          description: Spellcheck language is not supported.
+        "422":
+          description: Request validation failed.
+  /spellcheck/ignore:
+    get:
+      summary: List ignored spellcheck words
+      operationId: listSpellcheckIgnoredWords
+      tags:
+        - spellcheck
+      parameters:
+        - name: project_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: language
+          in: query
+          required: false
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 16
+      responses:
+        "200":
+          description: Ignored words for the project.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SpellcheckIgnore"
+        "400":
+          description: Spellcheck language is not supported.
+    post:
+      summary: Ignore a word for project spellcheck
+      operationId: createSpellcheckIgnoredWord
+      tags:
+        - spellcheck
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SpellcheckIgnoreCreateRequest"
+      responses:
+        "201":
+          description: Created or reused ignored word.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpellcheckIgnore"
+        "400":
+          description: Spellcheck language is not supported.
+        "422":
+          description: Request validation failed.
+  /spellcheck/ignore/{ignore_id}:
+    delete:
+      summary: Delete an ignored spellcheck word
+      operationId: deleteSpellcheckIgnoredWord
+      tags:
+        - spellcheck
+      parameters:
+        - name: ignore_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Ignored word deleted.
+        "404":
+          description: Ignored word was not found.
 components:
   schemas:
     HealthResponse:
@@ -943,6 +1037,124 @@ components:
           type:
             - string
             - "null"
+    SpellcheckRequest:
+      type: object
+      required:
+        - language
+        - text
+      properties:
+        language:
+          type: string
+          minLength: 2
+          maxLength: 16
+        text:
+          type: string
+          minLength: 1
+        project_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        created_by:
+          type:
+            - string
+            - "null"
+          format: uuid
+    SpellcheckResponse:
+      type: object
+      required:
+        - issues
+      properties:
+        issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpellcheckIssue"
+    SpellcheckIssue:
+      type: object
+      required:
+        - start
+        - end
+        - token
+        - message
+        - suggestions
+        - rule_code
+        - language
+      properties:
+        start:
+          type: integer
+          minimum: 0
+        end:
+          type: integer
+          minimum: 0
+        token:
+          type: string
+        message:
+          type: string
+        suggestions:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpellcheckSuggestion"
+        rule_code:
+          type: string
+        language:
+          type: string
+    SpellcheckSuggestion:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+    SpellcheckIgnoreCreateRequest:
+      type: object
+      required:
+        - project_id
+        - language
+        - word
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        language:
+          type: string
+          minLength: 2
+          maxLength: 16
+        word:
+          type: string
+          minLength: 1
+          maxLength: 255
+        created_by:
+          type:
+            - string
+            - "null"
+          format: uuid
+    SpellcheckIgnore:
+      type: object
+      required:
+        - id
+        - project_id
+        - language
+        - word
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        language:
+          type: string
+        word:
+          type: string
+        created_by:
+          type:
+            - string
+            - "null"
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
     TerminologyViolation:
       type: object
       required:

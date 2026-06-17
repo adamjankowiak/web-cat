@@ -21,12 +21,15 @@ type EditorState = "loading" | "ready" | "empty" | "error";
 type ActiveSegmentContext = {
   document: DocumentRead;
   segment: SegmentRead;
+  targetText: string;
 };
 type AppliedSuggestion = {
   segmentId: string;
   targetText: string;
   appliedAt: number;
-  mode?: "replace" | "append";
+  mode?: "replace" | "append" | "range";
+  start?: number;
+  end?: number;
 };
 
 type TranslationEditorProps = {
@@ -97,9 +100,15 @@ export function TranslationEditor({
 
   useEffect(() => {
     onActiveSegmentChange?.(
-      detail && activeSegment ? { document: detail.document, segment: activeSegment } : null
+      detail && activeSegment
+        ? {
+            document: detail.document,
+            segment: activeSegment,
+            targetText: targets[activeSegment.id] ?? ""
+          }
+        : null
     );
-  }, [activeSegment, detail, onActiveSegmentChange]);
+  }, [activeSegment, detail, onActiveSegmentChange, targets]);
 
   useEffect(() => {
     if (!appliedSuggestion) {
@@ -108,10 +117,7 @@ export function TranslationEditor({
 
     setTargets((current) => {
       const currentTarget = current[appliedSuggestion.segmentId] ?? "";
-      const nextTarget =
-        appliedSuggestion.mode === "append"
-          ? appendTerm(currentTarget, appliedSuggestion.targetText)
-          : appliedSuggestion.targetText;
+      const nextTarget = applySuggestion(currentTarget, appliedSuggestion);
 
       return {
         ...current,
@@ -396,4 +402,22 @@ function appendTerm(currentText: string, targetTerm: string): string {
   }
 
   return `${currentText.trimEnd()} ${targetTerm}`;
+}
+
+function applySuggestion(currentTarget: string, suggestion: AppliedSuggestion): string {
+  if (
+    suggestion.mode === "range" &&
+    suggestion.start !== undefined &&
+    suggestion.end !== undefined
+  ) {
+    return `${currentTarget.slice(0, suggestion.start)}${suggestion.targetText}${currentTarget.slice(
+      suggestion.end
+    )}`;
+  }
+
+  if (suggestion.mode === "append") {
+    return appendTerm(currentTarget, suggestion.targetText);
+  }
+
+  return suggestion.targetText;
 }

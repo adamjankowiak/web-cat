@@ -441,6 +441,10 @@ button:disabled {
   gap: 8px;
 }
 
+.spellcheck-command {
+  margin-bottom: 10px;
+}
+
 .suggestion-row,
 .term-row,
 .finding-row {
@@ -514,8 +518,7 @@ button:disabled {
   color: #7c2d12;
 }
 
-.term-row > span,
-.finding-row > span {
+.term-row > span {
   color: #7c2d12;
   font-size: 13px;
   font-weight: 700;
@@ -576,17 +579,50 @@ button:disabled {
 }
 
 .finding-row {
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
+  align-items: stretch;
 }
 
-.finding-row button {
+.finding-heading {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.finding-heading span {
+  color: #7c2d12;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.finding-heading small,
+.finding-row small {
+  color: #68766f;
+  line-height: 1.35;
+}
+
+.finding-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.finding-actions button {
+  align-items: center;
   background: #fff7ed;
   border: 1px solid #f0bd72;
   border-radius: 999px;
   color: #7c2d12;
+  display: inline-flex;
+  gap: 4px;
   min-height: 30px;
   padding: 0 10px;
+}
+
+.finding-actions .finding-ignore-button {
+  background: #ffffff;
+  border-color: #cfd8d3;
+  color: #31423a;
 }
 
 @media (max-width: 1100px) {

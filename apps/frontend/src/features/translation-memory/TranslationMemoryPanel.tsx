@@ -11,6 +11,7 @@ import {
 type ActiveSegmentContext = {
   document: DocumentRead;
   segment: SegmentRead;
+  targetText: string;
 };
 type PanelState = "idle" | "loading" | "ready" | "empty" | "error";
 
@@ -68,7 +69,13 @@ export function TranslationMemoryPanel({
     return () => {
       mounted = false;
     };
-  }, [activeContext]);
+  }, [
+    activeContext?.document.project_id,
+    activeContext?.document.source_language,
+    activeContext?.document.target_language,
+    activeContext?.segment.id,
+    activeContext?.segment.source_text
+  ]);
 
   return (
     <section className="assist-panel">

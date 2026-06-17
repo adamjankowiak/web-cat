@@ -9,19 +9,24 @@ import {
   getHealth,
   type DocumentRead,
   type HealthResponse,
-  type SegmentRead
+  type SegmentRead,
+  type SpellcheckIssue,
+  type SpellcheckSuggestion
 } from "../lib/api-client";
 
 type ApiStatus = "checking" | "online" | "offline";
 type ActiveSegmentContext = {
   document: DocumentRead;
   segment: SegmentRead;
+  targetText: string;
 };
 type AppliedSuggestion = {
   segmentId: string;
   targetText: string;
   appliedAt: number;
-  mode?: "replace" | "append";
+  mode?: "replace" | "append" | "range";
+  start?: number;
+  end?: number;
 };
 
 export function App() {
@@ -109,7 +114,23 @@ export function App() {
               });
             }}
           />
-          <SpellcheckPanel />
+          <SpellcheckPanel
+            activeContext={activeContext}
+            onApplySuggestion={(issue: SpellcheckIssue, suggestion: SpellcheckSuggestion) => {
+              if (!activeContext) {
+                return;
+              }
+
+              setAppliedSuggestion({
+                segmentId: activeContext.segment.id,
+                targetText: suggestion.value,
+                appliedAt: Date.now(),
+                mode: "range",
+                start: issue.start,
+                end: issue.end
+              });
+            }}
+          />
         </aside>
       </main>
     </div>
