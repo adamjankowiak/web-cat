@@ -20,11 +20,17 @@ Po Etapie 1 kontrakt wspoldzielony opisuje wdrozony endpoint `GET /health` oraz 
 - `GET /documents` - zwraca liste zaimportowanych dokumentow.
 - `GET /documents/{document_id}` - zwraca dokument z segmentami.
 - `GET /documents/{document_id}/segments` - zwraca segmenty dokumentu.
+- `GET /documents/{document_id}/export.txt` - eksportuje przetlumaczony dokument jako `text/plain`.
+- `GET /documents/{document_id}/export.xliff` - eksportuje dokument roboczy jako minimalny
+  `application/x-xliff+xml`.
 - `PATCH /segments/{segment_id}` - zapisuje robocze tlumaczenie lub status segmentu.
 - `POST /segments/{segment_id}/approve`
-- Status po Etapie 4: wdrozone. Zatwierdzanie wymaga niepustego `target_text`, sprawdza
+- Status po Etapie 6: wdrozone. Zatwierdzanie wymaga niepustego `target_text`, sprawdza
   terminologie slownikowa, ustawia status `approved` i zapisuje pare zrodlo-docelowy do pamieci
   tlumaczen. Przy naruszeniu terminologii zwraca `409` z lista naruszen i nie zapisuje TM.
+  Eksport TXT zachowuje kolejnosc segmentow i stosuje fallback do `source_text`, jesli segment
+  nie ma `target_text`. Eksport XLIFF zawiera `source`, `target`, status segmentu i jezyki
+  dokumentu; import XLIFF pozostaje planowanym rozszerzeniem.
 
 ### Pamiec tlumaczen
 
@@ -32,11 +38,18 @@ Po Etapie 1 kontrakt wspoldzielony opisuje wdrozony endpoint `GET /health` oraz 
 - `POST /translation-memory/entries`
 - `GET /translation-memory/entries`
 - `DELETE /translation-memory/entries/{entry_id}`
-- Status po Etapie 3: wdrozone i opisane w `libs/shared/contracts/openapi.yaml`.
+- `GET /translation-memory/export.tmx`
+- `POST /translation-memory/import-tmx`
+- Status po Etapie 6: wdrozone i opisane w `libs/shared/contracts/openapi.yaml`.
 
 Wyszukiwanie zwraca obiekt z lista `suggestions`. Kazda sugestia zawiera wpis TM, `score`
 oraz `match_type` (`exact` albo `fuzzy`). Exact match ma score 100. Fuzzy match jest liczony
 przez RapidFuzz po stronie backendu.
+
+Eksport TMX przyjmuje opcjonalne filtry `source_language`, `target_language`, `domain`
+i `project_id` oraz zwraca `application/xml`. Import TMX przyjmuje `application/xml`, waliduje
+minimalny subset `tmx/header/body/tu/tuv/seg`, zapisuje `domain` i `project_id` z `prop` oraz
+korzysta z idempotentnego zapisu wpisow TM.
 
 Przykladowe zapytanie wyszukiwania:
 
@@ -58,7 +71,9 @@ Przykladowe zapytanie wyszukiwania:
 - `PATCH /glossary/terms/{term_id}`
 - `DELETE /glossary/terms/{term_id}`
 - `POST /glossary/import-csv`
-- Status po Etapie 4: wdrozone i opisane w `libs/shared/contracts/openapi.yaml`.
+- `GET /glossary/export.tbx`
+- `POST /glossary/import-tbx`
+- Status po Etapie 6: wdrozone i opisane w `libs/shared/contracts/openapi.yaml`.
 
 Wyszukiwanie zwraca obiekt z lista `matches`. Kazde dopasowanie zawiera termin slownikowy,
 pozycje `start`/`end` oraz faktyczny fragment `matched_text` z segmentu zrodlowego.
@@ -78,6 +93,12 @@ Przykladowe zapytanie wyszukiwania:
 Import CSV przyjmuje `text/csv`. Wymagane kolumny to `source_term`, `target_term`,
 `source_language` i `target_language`. Obslugiwane kolumny opcjonalne to `definition`,
 `domain`, `case_sensitive`, `forbidden`, `example_source`, `example_target` i `project_id`.
+
+Eksport TBX przyjmuje opcjonalne filtry `source_language`, `target_language`, `domain`
+i `project_id` oraz zwraca `application/xml`. Import TBX przyjmuje `application/xml`, waliduje
+minimalny subset `tbx/text/body/termEntry/langSet/tig/term` i zapisuje terminy z metadanymi
+`definition`, `domain`, `project_id`, `case_sensitive` i `forbidden`. CSV pozostaje aktywnym
+formatem importu.
 
 ### Spellcheck
 

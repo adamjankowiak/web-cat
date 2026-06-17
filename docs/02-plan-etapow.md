@@ -97,12 +97,35 @@ Artefakty Etapu 5:
 - `apps/api/tests/test_spellcheck.py`
 - `libs/shared/contracts/openapi.yaml`
 
-## Etap 6: Eksport i formaty CAT
+## Etap 6: Eksport i formaty CAT - zakonczony
 
-- Dodac eksport przetlumaczonego TXT.
-- Dodac import/eksport TMX dla pamieci tlumaczen.
-- Dodac import/eksport TBX dla terminologii.
-- Rozwazyc XLIFF dla dokumentow roboczych.
+- Dodano eksport przetlumaczonego TXT przez `GET /documents/{document_id}/export.txt`.
+- Eksport TXT zapisuje segmenty w kolejnosci `position` i uzywa `target_text`; segmenty bez
+  tlumaczenia sa pragmatycznie eksportowane jako `source_text`.
+- Dodano eksport dokumentu roboczego XLIFF przez `GET /documents/{document_id}/export.xliff`
+  z segmentami, jezykami dokumentu, `source`, `target` i statusem segmentu.
+- Dodano eksport i import TMX dla pamieci tlumaczen przez `GET /translation-memory/export.tmx`
+  oraz `POST /translation-memory/import-tmx`.
+- Import TMX obsluguje deterministyczny subset MVP: `tmx`, `header`, `body`, `tu`,
+  `tuv xml:lang` i `seg`, zachowuje metadane `domain` i `project_id` oraz korzysta z
+  idempotentnego zapisu pamieci tlumaczen.
+- Dodano eksport i import TBX dla terminologii przez `GET /glossary/export.tbx` oraz
+  `POST /glossary/import-tbx`.
+- Import TBX obsluguje minimalne wpisy terminologiczne, jezyki, terminy, definicje, domene,
+  `project_id`, `case_sensitive` i `forbidden`; import CSV z Etapu 4 pozostaje bez zmian.
+- Frontend edytora pozwala pobrac TXT, XLIFF, TMX i TBX z realnych endpointow API.
+- Import XLIFF zostal swiadomie odlozony jako rozszerzenie po MVP.
+
+Artefakty Etapu 6:
+
+- `apps/api/src/cat_api/services/import_export.py`
+- `apps/api/src/cat_api/api/routes/documents.py`
+- `apps/api/src/cat_api/api/routes/translation_memory.py`
+- `apps/api/src/cat_api/api/routes/glossary.py`
+- `apps/frontend/src/features/editor/TranslationEditor.tsx`
+- `apps/frontend/src/lib/api-client.ts`
+- `apps/api/tests/test_import_export.py`
+- `libs/shared/contracts/openapi.yaml`
 
 ## Etap 7: Jakosc i prezentacja
 

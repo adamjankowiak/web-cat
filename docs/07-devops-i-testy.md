@@ -80,6 +80,19 @@ Po Etapie 5 dodano testy:
 - usuwania ignorowanego slowa,
 - walidacji pustego tekstu i brakujacego jezyka.
 
+Po Etapie 6 dodano testy:
+
+- eksportu TXT z segmentami w kolejnosci `position`,
+- fallbacku eksportu TXT do `source_text`, gdy brakuje `target_text`,
+- eksportu XLIFF z `source`, `target`, statusem i jezykami dokumentu,
+- eksportu TMX z tekstami, jezykami, data utworzenia, `domain` i `project_id`,
+- importu TMX i zapisu wpisu pamieci tlumaczen,
+- idempotencji importu TMX,
+- walidacji niepoprawnej struktury TMX,
+- eksportu TBX z definicja, domena, `project_id`, `case_sensitive` i `forbidden`,
+- importu TBX i zapisu terminu slownikowego,
+- walidacji niepoprawnej struktury TBX.
+
 Weryfikacja Etapu 4:
 
 - `cd apps/api && python -m pytest` - przechodzi,
@@ -87,6 +100,12 @@ Weryfikacja Etapu 4:
 - `cd apps/frontend && npm run build` - przechodzi.
 
 Weryfikacja Etapu 5:
+
+- `cd apps/api && python -m pytest` - przechodzi,
+- `cd apps/api && python -m ruff check .` - przechodzi,
+- `cd apps/frontend && npm run build` - przechodzi.
+
+Weryfikacja Etapu 6:
 
 - `cd apps/api && python -m pytest` - przechodzi,
 - `cd apps/api && python -m ruff check .` - przechodzi,

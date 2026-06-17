@@ -164,6 +164,33 @@ Formaty docelowe:
 - TBX dla terminologii,
 - XLIFF dla dokumentów i wymiany z innymi narzędziami CAT.
 
+Stan po Etapie 6:
+
+- backend udostepnia `GET /documents/{document_id}/export.txt`; eksport buduje plik z segmentow
+  w kolejnosci `position`, bierze `target_text`, a dla segmentow bez tlumaczenia uzywa
+  `source_text`, zeby dokument roboczy nadal byl eksportowalny,
+- backend udostepnia `GET /documents/{document_id}/export.xliff`; eksport XLIFF 1.2 zawiera
+  jezyki dokumentu, nazwe pliku, `source`, `target` oraz status segmentu jako `target state`
+  i notatke techniczna,
+- backend udostepnia `GET /translation-memory/export.tmx` z filtrami `source_language`,
+  `target_language`, `domain` i `project_id`,
+- backend udostepnia `POST /translation-memory/import-tmx`; import waliduje minimalna strukture
+  TMX i zapisuje wpisy przez istniejacy idempotentny serwis pamieci tlumaczen,
+- eksport TMX zapisuje jezyki, tekst zrodlowy, tekst docelowy, date utworzenia oraz metadane
+  `domain` i `project_id` jako wlasciwosci `prop`,
+- backend udostepnia `GET /glossary/export.tbx` z filtrami `source_language`, `target_language`,
+  `domain` i `project_id`,
+- backend udostepnia `POST /glossary/import-tbx`; import waliduje minimalna strukture TBX,
+  zapisuje terminy i chroni przed duplikatami dla tego samego zestawu pol,
+- eksport TBX zapisuje terminy zrodlowe i docelowe, jezyki, definicje, domene, `project_id`,
+  `case_sensitive` i `forbidden`,
+- import CSV slownika z Etapu 4 pozostaje wspierany jako prosty format masowego dodawania
+  terminow,
+- frontend edytora ma akcje pobierania TXT, XLIFF, TMX i TBX oraz stany eksportu w toku,
+  bledu eksportu i braku aktywnego dokumentu,
+- import XLIFF nie zostal wdrozony w Etapie 6, bo wymaga zasad scalania zmian z dokumentem
+  roboczym i obslugi konfliktow statusow.
+
 Reguły QA po MVP:
 
 - zgodność tagów XML/HTML,

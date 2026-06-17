@@ -84,6 +84,28 @@ $payload = @{
 Invoke-RestMethod -Uri http://localhost:8000/documents -Method Post -ContentType "application/json" -Body $payload
 ```
 
+Szybka weryfikacja eksportu i formatow CAT z Etapu 6:
+
+```powershell
+$document = Invoke-RestMethod -Uri http://localhost:8000/documents -Method Post -ContentType "application/json" -Body $payload
+$documentId = $document.document.id
+
+Invoke-WebRequest -Uri "http://localhost:8000/documents/$documentId/export.txt" -OutFile translated.txt
+Invoke-WebRequest -Uri "http://localhost:8000/documents/$documentId/export.xliff" -OutFile document.xliff
+Invoke-WebRequest -Uri "http://localhost:8000/translation-memory/export.tmx" -OutFile translation-memory.tmx
+Invoke-WebRequest -Uri "http://localhost:8000/glossary/export.tbx" -OutFile glossary.tbx
+```
+
+Import TMX i TBX przyjmuje XML w ciele requestu:
+
+```powershell
+Invoke-RestMethod -Uri http://localhost:8000/translation-memory/import-tmx -Method Post -ContentType "application/xml" -InFile translation-memory.tmx
+Invoke-RestMethod -Uri http://localhost:8000/glossary/import-tbx -Method Post -ContentType "application/xml" -InFile glossary.tbx
+```
+
+Eksport TXT uzywa `target_text`, a dla segmentow bez tlumaczenia eksportuje `source_text`, zeby
+dokument roboczy nadal mozna bylo pobrac.
+
 Wariant lokalny:
 
 ```powershell
