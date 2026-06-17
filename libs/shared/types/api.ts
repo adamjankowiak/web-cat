@@ -34,3 +34,36 @@ export type Segment = {
   created_at: string;
   updated_at: string;
 };
+
+export type TranslationMemoryEntry = {
+  id: string;
+  source_language: string;
+  target_language: string;
+  source_text: string;
+  target_text: string;
+  normalized_source_text: string;
+  domain?: string | null;
+  project_id?: string | null;
+  created_by?: string | null;
+  created_at: string;
+};
+
+export type TranslationMemorySuggestion = {
+  entry: TranslationMemoryEntry;
+  score: number;
+  match_type: "exact" | "fuzzy";
+};
+
+export type TranslationMemorySearchRequest = {
+  source_language: string;
+  target_language: string;
+  source_text: string;
+  domain?: string | null;
+  project_id?: string | null;
+  limit?: number;
+  min_score?: number;
+};
+
+export type TranslationMemorySearchResponse = {
+  suggestions: TranslationMemorySuggestion[];
+};

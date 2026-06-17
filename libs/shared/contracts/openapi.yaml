@@ -132,6 +132,124 @@ paths:
           description: Segment was not found.
         "409":
           description: Segment is locked.
+  /segments/{segment_id}/approve:
+    post:
+      summary: Approve a segment and store it in translation memory
+      operationId: approveSegment
+      tags:
+        - segments
+      parameters:
+        - name: segment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Approved segment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Segment"
+        "400":
+          description: Segment has no target text.
+        "404":
+          description: Segment was not found.
+        "409":
+          description: Segment is locked.
+  /translation-memory/search:
+    post:
+      summary: Search translation memory suggestions
+      operationId: searchTranslationMemory
+      tags:
+        - translation-memory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranslationMemorySearchRequest"
+      responses:
+        "200":
+          description: Ranked translation memory suggestions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranslationMemorySearchResponse"
+  /translation-memory/entries:
+    get:
+      summary: List translation memory entries
+      operationId: listTranslationMemoryEntries
+      tags:
+        - translation-memory
+      parameters:
+        - name: source_language
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: target_language
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: domain
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: project_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Translation memory entries ordered by creation date.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TranslationMemoryEntry"
+    post:
+      summary: Create a translation memory entry
+      operationId: createTranslationMemoryEntry
+      tags:
+        - translation-memory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranslationMemoryEntryCreateRequest"
+      responses:
+        "201":
+          description: Created or reused translation memory entry.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranslationMemoryEntry"
+  /translation-memory/entries/{entry_id}:
+    delete:
+      summary: Delete a translation memory entry
+      operationId: deleteTranslationMemoryEntry
+      tags:
+        - translation-memory
+      parameters:
+        - name: entry_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Entry deleted.
+        "404":
+          description: Translation memory entry was not found.
 components:
   schemas:
     HealthResponse:
@@ -314,3 +432,146 @@ components:
             - translated
             - reviewed
             - approved
+    TranslationMemoryEntryCreateRequest:
+      type: object
+      required:
+        - source_language
+        - target_language
+        - source_text
+        - target_text
+      properties:
+        source_language:
+          type: string
+          minLength: 2
+          maxLength: 16
+        target_language:
+          type: string
+          minLength: 2
+          maxLength: 16
+        source_text:
+          type: string
+          minLength: 1
+        target_text:
+          type: string
+          minLength: 1
+        domain:
+          type:
+            - string
+            - "null"
+          maxLength: 128
+        project_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        created_by:
+          type:
+            - string
+            - "null"
+          format: uuid
+    TranslationMemorySearchRequest:
+      type: object
+      required:
+        - source_language
+        - target_language
+        - source_text
+      properties:
+        source_language:
+          type: string
+          minLength: 2
+          maxLength: 16
+        target_language:
+          type: string
+          minLength: 2
+          maxLength: 16
+        source_text:
+          type: string
+          minLength: 1
+        domain:
+          type:
+            - string
+            - "null"
+          maxLength: 128
+        project_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 5
+        min_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          default: 60
+    TranslationMemorySearchResponse:
+      type: object
+      required:
+        - suggestions
+      properties:
+        suggestions:
+          type: array
+          items:
+            $ref: "#/components/schemas/TranslationMemorySuggestion"
+    TranslationMemorySuggestion:
+      type: object
+      required:
+        - entry
+        - score
+        - match_type
+      properties:
+        entry:
+          $ref: "#/components/schemas/TranslationMemoryEntry"
+        score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        match_type:
+          type: string
+          enum:
+            - exact
+            - fuzzy
+    TranslationMemoryEntry:
+      type: object
+      required:
+        - id
+        - source_language
+        - target_language
+        - source_text
+        - target_text
+        - normalized_source_text
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        source_language:
+          type: string
+        target_language:
+          type: string
+        source_text:
+          type: string
+        target_text:
+          type: string
+        normalized_source_text:
+          type: string
+        domain:
+          type:
+            - string
+            - "null"
+        project_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        created_by:
+          type:
+            - string
+            - "null"
+          format: uuid
+        created_at:
+          type: string
+          format: date-time

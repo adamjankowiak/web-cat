@@ -48,6 +48,41 @@ export type SegmentUpdateRequest = {
   status?: SegmentStatus;
 };
 
+export type TranslationMemoryEntryRead = {
+  id: string;
+  source_language: string;
+  target_language: string;
+  source_text: string;
+  target_text: string;
+  normalized_source_text: string;
+  domain: string | null;
+  project_id: string | null;
+  created_by: string | null;
+  created_at: string;
+};
+
+export type TranslationMemoryMatchType = "exact" | "fuzzy";
+
+export type TranslationMemorySuggestion = {
+  entry: TranslationMemoryEntryRead;
+  score: number;
+  match_type: TranslationMemoryMatchType;
+};
+
+export type TranslationMemorySearchResponse = {
+  suggestions: TranslationMemorySuggestion[];
+};
+
+export type TranslationMemorySearchRequest = {
+  source_language: string;
+  target_language: string;
+  source_text: string;
+  domain?: string | null;
+  project_id?: string | null;
+  limit?: number;
+  min_score?: number;
+};
+
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 export async function getHealth(): Promise<HealthResponse> {
@@ -84,6 +119,24 @@ export async function updateSegment(
       "Content-Type": "application/json"
     },
     method: "PATCH"
+  });
+}
+
+export async function approveSegment(segmentId: string): Promise<SegmentRead> {
+  return requestJson<SegmentRead>(`/segments/${segmentId}/approve`, {
+    method: "POST"
+  });
+}
+
+export async function searchTranslationMemory(
+  payload: TranslationMemorySearchRequest
+): Promise<TranslationMemorySearchResponse> {
+  return requestJson<TranslationMemorySearchResponse>("/translation-memory/search", {
+    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json"
+    },
+    method: "POST"
   });
 }
 

@@ -458,10 +458,30 @@ button:disabled {
   text-align: left;
 }
 
+.suggestion-meta {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.suggestion-meta strong,
 .suggestion-row span {
   color: #0f766e;
   font-size: 12px;
   font-weight: 800;
+}
+
+.suggestion-meta em {
+  background: #eef6f3;
+  border: 1px solid #c9ded7;
+  border-radius: 999px;
+  color: #52635a;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  padding: 2px 7px;
+  text-transform: uppercase;
 }
 
 .suggestion-row strong,
@@ -474,6 +494,24 @@ button:disabled {
 .term-row small {
   color: #68766f;
   line-height: 1.35;
+}
+
+.suggestion-context {
+  font-size: 12px;
+}
+
+.panel-note {
+  border: 1px dashed #cfd8d3;
+  border-radius: 7px;
+  color: #68766f;
+  font-size: 13px;
+  padding: 12px;
+}
+
+.panel-note--error {
+  background: #fff7ed;
+  border-color: #f0bd72;
+  color: #7c2d12;
 }
 
 .term-row > span,

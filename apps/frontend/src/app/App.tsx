@@ -5,13 +5,29 @@ import { GlossaryPanel } from "../features/glossary/GlossaryPanel";
 import { SpellcheckPanel } from "../features/spellcheck/SpellcheckPanel";
 import { TranslationEditor } from "../features/editor/TranslationEditor";
 import { TranslationMemoryPanel } from "../features/translation-memory/TranslationMemoryPanel";
-import { getHealth, type HealthResponse } from "../lib/api-client";
+import {
+  getHealth,
+  type DocumentRead,
+  type HealthResponse,
+  type SegmentRead
+} from "../lib/api-client";
 
 type ApiStatus = "checking" | "online" | "offline";
+type ActiveSegmentContext = {
+  document: DocumentRead;
+  segment: SegmentRead;
+};
+type AppliedSuggestion = {
+  segmentId: string;
+  targetText: string;
+  appliedAt: number;
+};
 
 export function App() {
   const [apiStatus, setApiStatus] = useState<ApiStatus>("checking");
   const [health, setHealth] = useState<HealthResponse | null>(null);
+  const [activeContext, setActiveContext] = useState<ActiveSegmentContext | null>(null);
+  const [appliedSuggestion, setAppliedSuggestion] = useState<AppliedSuggestion | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -56,11 +72,27 @@ export function App() {
 
       <main className="workspace">
         <section className="editor-region" aria-label="Translation editor">
-          <TranslationEditor />
+          <TranslationEditor
+            appliedSuggestion={appliedSuggestion}
+            onActiveSegmentChange={setActiveContext}
+          />
         </section>
 
         <aside className="side-panel" aria-label="CAT assistance panels">
-          <TranslationMemoryPanel />
+          <TranslationMemoryPanel
+            activeContext={activeContext}
+            onUseSuggestion={(suggestion) => {
+              if (!activeContext) {
+                return;
+              }
+
+              setAppliedSuggestion({
+                segmentId: activeContext.segment.id,
+                targetText: suggestion.entry.target_text,
+                appliedAt: Date.now()
+              });
+            }}
+          />
           <GlossaryPanel />
           <SpellcheckPanel />
         </aside>

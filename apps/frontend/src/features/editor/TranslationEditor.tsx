@@ -3,18 +3,37 @@ import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
+  approveSegment,
   getDocument,
   importTxtDocument,
   listDocuments,
   type DocumentDetailRead,
+  type DocumentRead,
   type SegmentRead,
   type SegmentationStrategy,
   updateSegment
 } from "../../lib/api-client";
 
 type EditorState = "loading" | "ready" | "empty" | "error";
+type ActiveSegmentContext = {
+  document: DocumentRead;
+  segment: SegmentRead;
+};
+type AppliedSuggestion = {
+  segmentId: string;
+  targetText: string;
+  appliedAt: number;
+};
 
-export function TranslationEditor() {
+type TranslationEditorProps = {
+  appliedSuggestion?: AppliedSuggestion | null;
+  onActiveSegmentChange?: (context: ActiveSegmentContext | null) => void;
+};
+
+export function TranslationEditor({
+  appliedSuggestion = null,
+  onActiveSegmentChange
+}: TranslationEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeSegmentId, setActiveSegmentId] = useState<string | null>(null);
   const [detail, setDetail] = useState<DocumentDetailRead | null>(null);
@@ -71,6 +90,23 @@ export function TranslationEditor() {
     () => segments.find((segment) => segment.id === activeSegmentId) ?? segments[0] ?? null,
     [activeSegmentId, segments]
   );
+
+  useEffect(() => {
+    onActiveSegmentChange?.(
+      detail && activeSegment ? { document: detail.document, segment: activeSegment } : null
+    );
+  }, [activeSegment, detail, onActiveSegmentChange]);
+
+  useEffect(() => {
+    if (!appliedSuggestion) {
+      return;
+    }
+
+    setTargets((current) => ({
+      ...current,
+      [appliedSuggestion.segmentId]: appliedSuggestion.targetText
+    }));
+  }, [appliedSuggestion]);
 
   function syncDocument(nextDetail: DocumentDetailRead) {
     setDetail(nextDetail);
@@ -152,7 +188,7 @@ export function TranslationEditor() {
     }
   }
 
-  async function handleMarkTranslated() {
+  async function handleApproveSegment() {
     if (!activeSegment) {
       return;
     }
@@ -161,11 +197,11 @@ export function TranslationEditor() {
     setMessage(null);
 
     try {
-      const updatedSegment = await updateSegment(activeSegment.id, {
-        status: "translated",
+      await updateSegment(activeSegment.id, {
         target_text: targets[activeSegment.id] ?? ""
       });
-      replaceSegment(updatedSegment);
+      const approvedSegment = await approveSegment(activeSegment.id);
+      replaceSegment(approvedSegment);
     } catch (error) {
       setMessage(getErrorMessage(error));
     } finally {
@@ -271,11 +307,11 @@ export function TranslationEditor() {
                 <button
                   className="command-button command-button--primary"
                   disabled={isSaving}
-                  onClick={handleMarkTranslated}
+                  onClick={handleApproveSegment}
                   type="button"
                 >
                   <CheckCircle2 size={17} aria-hidden="true" />
-                  Mark translated
+                  Approve
                 </button>
               </div>
             </div>
