@@ -77,6 +77,21 @@ Mechanizm startowy:
 - oznaczenie terminów wymaganych i zakazanych,
 - zwracanie pozycji terminu w segmencie.
 
+Stan po Etapie 4:
+
+- backend udostepnia `POST /glossary/search` oraz CRUD terminow przez `/glossary/terms`,
+- wyszukiwanie dziala deterministycznie po stronie Pythona, dzieki czemu testy przechodza na SQLite,
+- wyniki zawieraja termin, dopasowany fragment oraz pozycje `start` i `end` w segmencie zrodlowym,
+- import CSV przez `POST /glossary/import-csv` obsluguje kolumny terminu, jezykow, definicji,
+  domeny, flag `case_sensitive` i `forbidden` oraz przykladow,
+- panel slownika w edytorze pobiera terminy dla aktywnego segmentu, pokazuje definicje, domene,
+  status wymagany/zakazany i przyklady,
+- klikniecie zalecanego terminu w panelu wstawia `target_term` do tlumaczenia aktywnego segmentu,
+- zatwierdzanie segmentu waliduje terminologie przed zmiana statusu na `approved` i przed zapisem
+  wpisu do pamieci tlumaczen,
+- naruszenia terminologii zwracaja `409` z lista brakujacych terminow wymaganych lub uzytych
+  terminow zakazanych.
+
 Możliwe rozszerzenia:
 
 - odmiana fleksyjna dla języka polskiego,

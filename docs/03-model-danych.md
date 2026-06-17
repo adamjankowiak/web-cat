@@ -91,6 +91,19 @@ Stan po Etapie 3:
 - `example_source`
 - `example_target`
 
+Stan po Etapie 4:
+
+- model jest uzywany przez endpointy CRUD slownika i wyszukiwanie terminow,
+- istniejacy schemat okazal sie wystarczajacy, wiec nie dodano migracji Alembic,
+- `source_term` jest dopasowywany do tekstu zrodlowego jako termin jedno- lub wielowyrazowy,
+- `case_sensitive` decyduje o wrazliwosci dopasowania w segmencie zrodlowym i walidacji tekstu docelowego,
+- `forbidden=false` oznacza termin wymagany: jesli `source_term` wystepuje w segmencie, `target_term`
+  musi wystapic w tlumaczeniu,
+- `forbidden=true` oznacza termin zakazany: jesli `source_term` wystepuje w segmencie, `target_term`
+  nie moze wystapic w tlumaczeniu,
+- `project_id=NULL` i `domain=NULL` pelnia role wpisow globalnych, ktore moga byc uwzgledniane
+  przy wyszukiwaniu dla konkretnego projektu lub domeny.
+
 ### SpellcheckIgnore
 
 - `id`

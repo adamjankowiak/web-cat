@@ -53,11 +53,24 @@ Po Etapie 3 dodano testy:
 - zatwierdzania segmentu i automatycznego zapisu do TM,
 - bledu walidacji przy zatwierdzaniu segmentu bez tekstu docelowego.
 
-Weryfikacja Etapu 3:
+Po Etapie 4 dodano testy:
+
+- wyszukiwania terminu jednowyrazowego i wielowyrazowego z pozycjami w segmencie,
+- filtrowania slownika po parze jezykowej, domenie i projekcie,
+- obslugi `case_sensitive`,
+- obslugi terminu zakazanego,
+- CRUD terminow slownikowych,
+- importu CSV i walidacji wymaganych kolumn,
+- zatwierdzania segmentu, gdy wymagany termin docelowy jest obecny,
+- bledu `409`, gdy wymagany termin docelowy nie wystepuje,
+- bledu `409`, gdy w tlumaczeniu wystepuje termin zakazany,
+- braku zapisu do pamieci tlumaczen po odrzuconym zatwierdzeniu.
+
+Weryfikacja Etapu 4:
 
 - `cd apps/api && python -m pytest` - przechodzi,
 - `cd apps/api && python -m ruff check .` - przechodzi,
-- `cd apps/frontend && npm run build` - wymagane do pelnej weryfikacji frontendu.
+- `cd apps/frontend && npm run build` - przechodzi.
 
 ## Testy frontendu
 

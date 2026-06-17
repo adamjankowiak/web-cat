@@ -52,13 +52,25 @@ Artefakty Etapu 3:
 - `apps/api/tests/test_translation_memory.py`
 - `libs/shared/contracts/openapi.yaml`
 
-## Etap 4: Slownik kontekstowy
+## Etap 4: Slownik kontekstowy - zakonczony
 
-- Dodac model terminu: source term, target term, definicja, domena, jezyki.
-- Wyszukiwac terminy wystepujace w aktualnym segmencie.
-- Pokazywac propozycje terminologiczne w panelu bocznym.
-- Dodac walidacje, czy zatwierdzone tlumaczenie zawiera wymagany termin.
-- Dodac import slownika z CSV, pozniej TBX.
+- Rozbudowano istniejacy model `GlossaryTerm` bez zmiany schematu bazy.
+- Dodano CRUD terminow slownikowych przez API.
+- Dodano wyszukiwanie terminow jedno- i wielowyrazowych w aktualnym segmencie z pozycjami wystapien.
+- Wyszukiwanie uwzglednia pare jezykowa, domene, projekt, `case_sensitive` oraz terminy zakazane.
+- Panel slownika w edytorze pobiera realne wyniki z API i pozwala szybko wstawic zalecany `target_term`.
+- Zatwierdzanie segmentu sprawdza terminologie wymagana i zakazana przed zapisem statusu oraz TM.
+- Dodano import slownika z CSV; TBX pozostaje pozniejszym rozszerzeniem.
+
+Artefakty Etapu 4:
+
+- `apps/api/src/cat_api/services/glossary.py`
+- `apps/api/src/cat_api/api/routes/glossary.py`
+- `apps/api/src/cat_api/api/routes/segments.py`
+- `apps/frontend/src/features/glossary/GlossaryPanel.tsx`
+- `apps/frontend/src/features/editor/TranslationEditor.tsx`
+- `apps/api/tests/test_glossary.py`
+- `libs/shared/contracts/openapi.yaml`
 
 ## Etap 5: Sprawdzanie pisowni
 

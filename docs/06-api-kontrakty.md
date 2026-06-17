@@ -22,8 +22,9 @@ Po Etapie 1 kontrakt wspoldzielony opisuje wdrozony endpoint `GET /health` oraz 
 - `GET /documents/{document_id}/segments` - zwraca segmenty dokumentu.
 - `PATCH /segments/{segment_id}` - zapisuje robocze tlumaczenie lub status segmentu.
 - `POST /segments/{segment_id}/approve`
-- Status po Etapie 3: wdrozone. Zatwierdzanie wymaga niepustego `target_text`, ustawia status
-  `approved` i zapisuje pare zrodlo-docelowy do pamieci tlumaczen.
+- Status po Etapie 4: wdrozone. Zatwierdzanie wymaga niepustego `target_text`, sprawdza
+  terminologie slownikowa, ustawia status `approved` i zapisuje pare zrodlo-docelowy do pamieci
+  tlumaczen. Przy naruszeniu terminologii zwraca `409` z lista naruszen i nie zapisuje TM.
 
 ### Pamiec tlumaczen
 
@@ -56,7 +57,27 @@ Przykladowe zapytanie wyszukiwania:
 - `GET /glossary/terms`
 - `PATCH /glossary/terms/{term_id}`
 - `DELETE /glossary/terms/{term_id}`
-- Status po Etapie 1: zaplanowane na Etap 4.
+- `POST /glossary/import-csv`
+- Status po Etapie 4: wdrozone i opisane w `libs/shared/contracts/openapi.yaml`.
+
+Wyszukiwanie zwraca obiekt z lista `matches`. Kazde dopasowanie zawiera termin slownikowy,
+pozycje `start`/`end` oraz faktyczny fragment `matched_text` z segmentu zrodlowego.
+
+Przykladowe zapytanie wyszukiwania:
+
+```json
+{
+  "source_language": "en",
+  "target_language": "pl",
+  "source_text": "Save the file before closing the window.",
+  "domain": "software",
+  "project_id": "project-id"
+}
+```
+
+Import CSV przyjmuje `text/csv`. Wymagane kolumny to `source_term`, `target_term`,
+`source_language` i `target_language`. Obslugiwane kolumny opcjonalne to `definition`,
+`domain`, `case_sensitive`, `forbidden`, `example_source`, `example_target` i `project_id`.
 
 ### Spellcheck
 
