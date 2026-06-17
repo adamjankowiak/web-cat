@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<tmx version="1.4">
+  <header creationtool="web-cat" creationtoolversion="0.1.0" segtype="sentence" o-tmf="web-cat" adminlang="en" srclang="en" datatype="PlainText" />
+  <body>
+    <tu>
+      <prop type="domain">software</prop>
+      <tuv xml:lang="en"><seg>Save the file.</seg></tuv>
+      <tuv xml:lang="pl"><seg>Zapisz plik.</seg></tuv>
+    </tu>
+    <tu>
+      <prop type="domain">software</prop>
+      <tuv xml:lang="en"><seg>Close the window.</seg></tuv>
+      <tuv xml:lang="pl"><seg>Zamknij okno.</seg></tuv>
+    </tu>
+  </body>
+</tmx>

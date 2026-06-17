@@ -1,5 +1,5 @@
 param(
-    [ValidateSet("compose", "api", "frontend", "migrate", "test-api")]
+    [ValidateSet("compose", "api", "frontend", "migrate", "test-api", "test-frontend", "test-e2e")]
     [string]$Target = "compose"
 )
 
@@ -43,6 +43,16 @@ switch ($Target) {
     "test-api" {
         Invoke-InProject "$Root\apps\api" {
             python -m pytest
+        }
+    }
+    "test-frontend" {
+        Invoke-InProject "$Root\apps\frontend" {
+            npm run test
+        }
+    }
+    "test-e2e" {
+        Invoke-InProject "$Root\apps\frontend" {
+            npm run test:e2e
         }
     }
 }

@@ -1,3 +1,4 @@
 Save the file.
 Save the file before closing the window.
 Open the translation memory panel.
+Check the target segment for spelling errors.

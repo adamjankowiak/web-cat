@@ -1,0 +1,5 @@
+source_term,target_term,source_language,target_language,definition,domain,case_sensitive,forbidden,example_source,example_target
+file,plik,en,pl,A document stored by the application.,software,false,false,Save the file.,Zapisz plik.
+window,okno,en,pl,Application frame shown on screen.,software,false,false,Close the window.,Zamknij okno.
+translation memory,pamiec tlumaczen,en,pl,Database of approved source-target segment pairs.,software,false,false,Open the translation memory panel.,Otworz panel pamieci tlumaczen.
+click here,kliknij tutaj,en,pl,Forbidden non-descriptive UI phrase.,software,false,true,Do not write click here.,Nie uzywaj kliknij tutaj.

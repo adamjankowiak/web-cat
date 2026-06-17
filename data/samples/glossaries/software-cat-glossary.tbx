@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<tbx style="dca" type="TBX-Core">
+  <tbxHeader />
+  <text>
+    <body>
+      <termEntry>
+        <descrip type="domain">software</descrip>
+        <descrip type="definition">A document stored by the application.</descrip>
+        <descrip type="case_sensitive">false</descrip>
+        <descrip type="forbidden">false</descrip>
+        <langSet xml:lang="en"><tig><term>file</term></tig></langSet>
+        <langSet xml:lang="pl"><tig><term>plik</term></tig></langSet>
+      </termEntry>
+      <termEntry>
+        <descrip type="domain">software</descrip>
+        <descrip type="definition">Application frame shown on screen.</descrip>
+        <descrip type="case_sensitive">false</descrip>
+        <descrip type="forbidden">false</descrip>
+        <langSet xml:lang="en"><tig><term>window</term></tig></langSet>
+        <langSet xml:lang="pl"><tig><term>okno</term></tig></langSet>
+      </termEntry>
+      <termEntry>
+        <descrip type="domain">software</descrip>
+        <descrip type="definition">Database of approved source-target segment pairs.</descrip>
+        <descrip type="case_sensitive">false</descrip>
+        <descrip type="forbidden">false</descrip>
+        <langSet xml:lang="en"><tig><term>translation memory</term></tig></langSet>
+        <langSet xml:lang="pl"><tig><term>pamiec tlumaczen</term></tig></langSet>
+      </termEntry>
+      <termEntry>
+        <descrip type="domain">software</descrip>
+        <descrip type="definition">Forbidden non-descriptive UI phrase.</descrip>
+        <descrip type="case_sensitive">false</descrip>
+        <descrip type="forbidden">true</descrip>
+        <langSet xml:lang="en"><tig><term>click here</term></tig></langSet>
+        <langSet xml:lang="pl"><tig><term>kliknij tutaj</term></tig></langSet>
+      </termEntry>
+    </body>
+  </text>
+</tbx>
