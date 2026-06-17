@@ -3,9 +3,12 @@ import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
+  ApiError,
   approveSegment,
+  formatTerminologyViolations,
   getDocument,
   importTxtDocument,
+  isTerminologyValidationDetail,
   listDocuments,
   type DocumentDetailRead,
   type DocumentRead,
@@ -23,6 +26,7 @@ type AppliedSuggestion = {
   segmentId: string;
   targetText: string;
   appliedAt: number;
+  mode?: "replace" | "append";
 };
 
 type TranslationEditorProps = {
@@ -102,10 +106,18 @@ export function TranslationEditor({
       return;
     }
 
-    setTargets((current) => ({
-      ...current,
-      [appliedSuggestion.segmentId]: appliedSuggestion.targetText
-    }));
+    setTargets((current) => {
+      const currentTarget = current[appliedSuggestion.segmentId] ?? "";
+      const nextTarget =
+        appliedSuggestion.mode === "append"
+          ? appendTerm(currentTarget, appliedSuggestion.targetText)
+          : appliedSuggestion.targetText;
+
+      return {
+        ...current,
+        [appliedSuggestion.segmentId]: nextTarget
+      };
+    });
   }, [appliedSuggestion]);
 
   function syncDocument(nextDetail: DocumentDetailRead) {
@@ -356,5 +368,32 @@ export function TranslationEditor({
 }
 
 function getErrorMessage(error: unknown): string {
+  if (
+    error instanceof ApiError &&
+    error.status === 409 &&
+    isApiErrorDetail(error.detail) &&
+    isTerminologyValidationDetail(error.detail.detail)
+  ) {
+    return formatTerminologyViolations(error.detail.detail.violations);
+  }
+
   return error instanceof Error ? error.message : "Unexpected API error.";
+}
+
+function isApiErrorDetail(value: unknown): value is { detail: unknown } {
+  return typeof value === "object" && value !== null && "detail" in value;
+}
+
+function appendTerm(currentText: string, targetTerm: string): string {
+  const trimmedCurrent = currentText.trim();
+
+  if (!trimmedCurrent) {
+    return targetTerm;
+  }
+
+  if (trimmedCurrent.toLocaleLowerCase().includes(targetTerm.toLocaleLowerCase())) {
+    return currentText;
+  }
+
+  return `${currentText.trimEnd()} ${targetTerm}`;
 }

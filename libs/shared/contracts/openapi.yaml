@@ -131,7 +131,11 @@ paths:
         "404":
           description: Segment was not found.
         "409":
-          description: Segment is locked.
+          description: Segment is locked or terminology validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TerminologyValidationErrorResponse"
   /segments/{segment_id}/approve:
     post:
       summary: Approve a segment and store it in translation memory
@@ -250,6 +254,146 @@ paths:
           description: Entry deleted.
         "404":
           description: Translation memory entry was not found.
+  /glossary/search:
+    post:
+      summary: Search glossary terms in source text
+      operationId: searchGlossaryTerms
+      tags:
+        - glossary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GlossarySearchRequest"
+      responses:
+        "200":
+          description: Glossary terms found in the submitted source text.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GlossarySearchResponse"
+  /glossary/terms:
+    get:
+      summary: List glossary terms
+      operationId: listGlossaryTerms
+      tags:
+        - glossary
+      parameters:
+        - name: source_language
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: target_language
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: domain
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: project_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Glossary terms ordered by source and target term.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GlossaryTerm"
+    post:
+      summary: Create a glossary term
+      operationId: createGlossaryTerm
+      tags:
+        - glossary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GlossaryTermCreateRequest"
+      responses:
+        "201":
+          description: Created glossary term.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GlossaryTerm"
+  /glossary/terms/{term_id}:
+    patch:
+      summary: Update a glossary term
+      operationId: updateGlossaryTerm
+      tags:
+        - glossary
+      parameters:
+        - name: term_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GlossaryTermUpdateRequest"
+      responses:
+        "200":
+          description: Updated glossary term.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GlossaryTerm"
+        "404":
+          description: Glossary term was not found.
+    delete:
+      summary: Delete a glossary term
+      operationId: deleteGlossaryTerm
+      tags:
+        - glossary
+      parameters:
+        - name: term_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Glossary term deleted.
+        "404":
+          description: Glossary term was not found.
+  /glossary/import-csv:
+    post:
+      summary: Import glossary terms from CSV
+      operationId: importGlossaryCsv
+      tags:
+        - glossary
+      requestBody:
+        required: true
+        content:
+          text/csv:
+            schema:
+              type: string
+      responses:
+        "201":
+          description: Imported glossary terms.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GlossaryImportResponse"
+        "400":
+          description: CSV header or rows are invalid.
 components:
   schemas:
     HealthResponse:
@@ -575,3 +719,270 @@ components:
         created_at:
           type: string
           format: date-time
+    GlossaryTermCreateRequest:
+      type: object
+      required:
+        - source_language
+        - target_language
+        - source_term
+        - target_term
+      properties:
+        project_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        source_language:
+          type: string
+          minLength: 2
+          maxLength: 16
+        target_language:
+          type: string
+          minLength: 2
+          maxLength: 16
+        source_term:
+          type: string
+          minLength: 1
+          maxLength: 255
+        target_term:
+          type: string
+          minLength: 1
+          maxLength: 255
+        definition:
+          type:
+            - string
+            - "null"
+        domain:
+          type:
+            - string
+            - "null"
+          maxLength: 128
+        case_sensitive:
+          type: boolean
+          default: false
+        forbidden:
+          type: boolean
+          default: false
+        example_source:
+          type:
+            - string
+            - "null"
+        example_target:
+          type:
+            - string
+            - "null"
+    GlossaryTermUpdateRequest:
+      type: object
+      properties:
+        project_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        source_language:
+          type:
+            - string
+            - "null"
+          minLength: 2
+          maxLength: 16
+        target_language:
+          type:
+            - string
+            - "null"
+          minLength: 2
+          maxLength: 16
+        source_term:
+          type:
+            - string
+            - "null"
+          minLength: 1
+          maxLength: 255
+        target_term:
+          type:
+            - string
+            - "null"
+          minLength: 1
+          maxLength: 255
+        definition:
+          type:
+            - string
+            - "null"
+        domain:
+          type:
+            - string
+            - "null"
+          maxLength: 128
+        case_sensitive:
+          type:
+            - boolean
+            - "null"
+        forbidden:
+          type:
+            - boolean
+            - "null"
+        example_source:
+          type:
+            - string
+            - "null"
+        example_target:
+          type:
+            - string
+            - "null"
+    GlossarySearchRequest:
+      type: object
+      required:
+        - source_language
+        - target_language
+        - source_text
+      properties:
+        source_language:
+          type: string
+          minLength: 2
+          maxLength: 16
+        target_language:
+          type: string
+          minLength: 2
+          maxLength: 16
+        source_text:
+          type: string
+          minLength: 1
+        domain:
+          type:
+            - string
+            - "null"
+          maxLength: 128
+        project_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+    GlossarySearchResponse:
+      type: object
+      required:
+        - matches
+      properties:
+        matches:
+          type: array
+          items:
+            $ref: "#/components/schemas/GlossaryTermMatch"
+    GlossaryTermMatch:
+      type: object
+      required:
+        - term
+        - start
+        - end
+        - matched_text
+      properties:
+        term:
+          $ref: "#/components/schemas/GlossaryTerm"
+        start:
+          type: integer
+          minimum: 0
+        end:
+          type: integer
+          minimum: 0
+        matched_text:
+          type: string
+    GlossaryImportResponse:
+      type: object
+      required:
+        - imported_count
+        - terms
+      properties:
+        imported_count:
+          type: integer
+          minimum: 0
+        terms:
+          type: array
+          items:
+            $ref: "#/components/schemas/GlossaryTerm"
+    GlossaryTerm:
+      type: object
+      required:
+        - id
+        - source_language
+        - target_language
+        - source_term
+        - target_term
+        - case_sensitive
+        - forbidden
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        source_language:
+          type: string
+        target_language:
+          type: string
+        source_term:
+          type: string
+        target_term:
+          type: string
+        definition:
+          type:
+            - string
+            - "null"
+        domain:
+          type:
+            - string
+            - "null"
+        case_sensitive:
+          type: boolean
+        forbidden:
+          type: boolean
+        example_source:
+          type:
+            - string
+            - "null"
+        example_target:
+          type:
+            - string
+            - "null"
+    TerminologyViolation:
+      type: object
+      required:
+        - term
+        - violation_type
+        - message
+        - start
+        - end
+        - matched_text
+      properties:
+        term:
+          $ref: "#/components/schemas/GlossaryTerm"
+        violation_type:
+          type: string
+          enum:
+            - missing_required
+            - forbidden_present
+        message:
+          type: string
+        start:
+          type: integer
+          minimum: 0
+        end:
+          type: integer
+          minimum: 0
+        matched_text:
+          type: string
+    TerminologyValidationError:
+      type: object
+      required:
+        - violations
+      properties:
+        violations:
+          type: array
+          items:
+            $ref: "#/components/schemas/TerminologyViolation"
+    TerminologyValidationErrorResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          $ref: "#/components/schemas/TerminologyValidationError"

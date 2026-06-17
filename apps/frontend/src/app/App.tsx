@@ -21,6 +21,7 @@ type AppliedSuggestion = {
   segmentId: string;
   targetText: string;
   appliedAt: number;
+  mode?: "replace" | "append";
 };
 
 export function App() {
@@ -93,7 +94,21 @@ export function App() {
               });
             }}
           />
-          <GlossaryPanel />
+          <GlossaryPanel
+            activeContext={activeContext}
+            onUseTerm={(match) => {
+              if (!activeContext) {
+                return;
+              }
+
+              setAppliedSuggestion({
+                segmentId: activeContext.segment.id,
+                targetText: match.term.target_term,
+                appliedAt: Date.now(),
+                mode: "append"
+              });
+            }}
+          />
           <SpellcheckPanel />
         </aside>
       </main>

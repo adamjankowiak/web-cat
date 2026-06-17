@@ -67,3 +67,71 @@ export type TranslationMemorySearchRequest = {
 export type TranslationMemorySearchResponse = {
   suggestions: TranslationMemorySuggestion[];
 };
+
+export type GlossaryTerm = {
+  id: string;
+  project_id?: string | null;
+  source_language: string;
+  target_language: string;
+  source_term: string;
+  target_term: string;
+  definition?: string | null;
+  domain?: string | null;
+  case_sensitive: boolean;
+  forbidden: boolean;
+  example_source?: string | null;
+  example_target?: string | null;
+};
+
+export type GlossaryTermCreateRequest = {
+  project_id?: string | null;
+  source_language: string;
+  target_language: string;
+  source_term: string;
+  target_term: string;
+  definition?: string | null;
+  domain?: string | null;
+  case_sensitive?: boolean;
+  forbidden?: boolean;
+  example_source?: string | null;
+  example_target?: string | null;
+};
+
+export type GlossaryTermUpdateRequest = Partial<GlossaryTermCreateRequest>;
+
+export type GlossarySearchRequest = {
+  source_language: string;
+  target_language: string;
+  source_text: string;
+  domain?: string | null;
+  project_id?: string | null;
+};
+
+export type GlossaryTermMatch = {
+  term: GlossaryTerm;
+  start: number;
+  end: number;
+  matched_text: string;
+};
+
+export type GlossarySearchResponse = {
+  matches: GlossaryTermMatch[];
+};
+
+export type GlossaryImportResponse = {
+  imported_count: number;
+  terms: GlossaryTerm[];
+};
+
+export type TerminologyViolation = {
+  term: GlossaryTerm;
+  violation_type: "missing_required" | "forbidden_present";
+  message: string;
+  start: number;
+  end: number;
+  matched_text: string;
+};
+
+export type TerminologyValidationError = {
+  violations: TerminologyViolation[];
+};

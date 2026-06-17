@@ -83,6 +83,65 @@ export type TranslationMemorySearchRequest = {
   min_score?: number;
 };
 
+export type GlossaryTermRead = {
+  id: string;
+  project_id: string | null;
+  source_language: string;
+  target_language: string;
+  source_term: string;
+  target_term: string;
+  definition: string | null;
+  domain: string | null;
+  case_sensitive: boolean;
+  forbidden: boolean;
+  example_source: string | null;
+  example_target: string | null;
+};
+
+export type GlossaryTermMatch = {
+  term: GlossaryTermRead;
+  start: number;
+  end: number;
+  matched_text: string;
+};
+
+export type GlossarySearchRequest = {
+  source_language: string;
+  target_language: string;
+  source_text: string;
+  domain?: string | null;
+  project_id?: string | null;
+};
+
+export type GlossarySearchResponse = {
+  matches: GlossaryTermMatch[];
+};
+
+export type TerminologyViolation = {
+  term: GlossaryTermRead;
+  violation_type: "missing_required" | "forbidden_present" | string;
+  message: string;
+  start: number;
+  end: number;
+  matched_text: string;
+};
+
+export type TerminologyValidationDetail = {
+  violations: TerminologyViolation[];
+};
+
+export class ApiError extends Error {
+  detail: unknown;
+  status: number;
+
+  constructor(message: string, status: number, detail: unknown) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.detail = detail;
+  }
+}
+
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 export async function getHealth(): Promise<HealthResponse> {
@@ -140,13 +199,90 @@ export async function searchTranslationMemory(
   });
 }
 
+export async function searchGlossary(
+  payload: GlossarySearchRequest
+): Promise<GlossarySearchResponse> {
+  return requestJson<GlossarySearchResponse>("/glossary/search", {
+    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json"
+    },
+    method: "POST"
+  });
+}
+
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, init);
-  const payload = await response.text();
+  const responseText = await response.text();
+  const payload = parseResponsePayload(responseText);
 
   if (!response.ok) {
-    throw new Error(payload || `API request failed with status ${response.status}`);
+    throw new ApiError(
+      formatApiErrorMessage(payload, response.status),
+      response.status,
+      payload
+    );
   }
 
-  return JSON.parse(payload) as T;
+  return payload as T;
+}
+
+function parseResponsePayload(responseText: string): unknown {
+  if (!responseText) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(responseText);
+  } catch {
+    return responseText;
+  }
+}
+
+function formatApiErrorMessage(payload: unknown, status: number): string {
+  if (typeof payload === "string" && payload) {
+    return payload;
+  }
+
+  if (isObjectWithDetail(payload)) {
+    if (typeof payload.detail === "string") {
+      return payload.detail;
+    }
+
+    if (isTerminologyValidationDetail(payload.detail)) {
+      return formatTerminologyViolations(payload.detail.violations);
+    }
+  }
+
+  return `API request failed with status ${status}`;
+}
+
+export function isTerminologyValidationDetail(
+  detail: unknown
+): detail is TerminologyValidationDetail {
+  return (
+    isObjectWithDetail(detail) &&
+    Array.isArray(detail.violations) &&
+    detail.violations.every((violation) => isObjectWithDetail(violation))
+  );
+}
+
+export function formatTerminologyViolations(violations: TerminologyViolation[]): string {
+  return violations
+    .map((violation) => {
+      if (violation.violation_type === "missing_required") {
+        return `Required term missing: ${violation.term.source_term} -> ${violation.term.target_term}`;
+      }
+
+      if (violation.violation_type === "forbidden_present") {
+        return `Forbidden term used: ${violation.term.target_term}`;
+      }
+
+      return violation.message;
+    })
+    .join(" ");
+}
+
+function isObjectWithDetail(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }

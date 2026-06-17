@@ -521,6 +521,60 @@ button:disabled {
   font-weight: 700;
 }
 
+.term-heading {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.term-heading > span {
+  color: #7c2d12;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.term-badge {
+  align-items: center;
+  background: #eef6f3;
+  border: 1px solid #c9ded7;
+  border-radius: 999px;
+  color: #0f5f4f;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-size: 11px;
+  gap: 4px;
+  line-height: 1;
+  padding: 4px 7px;
+  text-transform: uppercase;
+}
+
+.term-badge--forbidden {
+  background: #fff7ed;
+  border-color: #f0bd72;
+  color: #7c2d12;
+}
+
+.term-example {
+  background: #fbfcfc;
+  border-left: 3px solid #cfd8d3;
+  padding: 6px 8px;
+}
+
+.term-use-button {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #cfd8d3;
+  border-radius: 7px;
+  color: #24313c;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 800;
+  gap: 6px;
+  justify-content: center;
+  min-height: 32px;
+}
+
 .finding-row {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;

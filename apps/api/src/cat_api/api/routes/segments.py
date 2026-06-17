@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session, selectinload
 from cat_api.db.session import get_session
 from cat_api.models.document import Document, Segment
 from cat_api.schemas.document import SegmentRead, SegmentUpdateRequest
+from cat_api.schemas.glossary import TerminologyValidationError
+from cat_api.services.glossary import validate_terminology
 from cat_api.services.translation_memory import save_translation_memory_entry
 
 router = APIRouter(prefix="/segments", tags=["segments"])
@@ -74,6 +76,22 @@ def approve_segment(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Segment cannot be approved without target text.",
+        )
+
+    violations = validate_terminology(
+        session,
+        source_language=segment.document.source_language,
+        target_language=segment.document.target_language,
+        source_text=segment.source_text,
+        target_text=segment.target_text,
+        domain=segment.document.project.domain,
+        project_id=segment.document.project_id,
+    )
+
+    if violations:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=TerminologyValidationError(violations=violations).model_dump(mode="json"),
         )
 
     segment.status = "approved"
