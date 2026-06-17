@@ -113,6 +113,17 @@ Stan po Etapie 4:
 - `created_by`
 - `created_at`
 
+Stan po Etapie 5:
+
+- model jest uzywany przez endpointy ignorowania slow spellchecka,
+- `project_id` jest wymagane, bo ignorowanie ma zakres projektu,
+- `language` jest normalizowany do bazowego kodu jezyka, np. `pl-PL` -> `pl`,
+- `word` jest normalizowane przez Unicode NFKC, trim i `casefold`,
+- unikalny constraint `project_id + language + word` jest wykorzystywany do idempotentnego
+  dodawania ignorowanych slow,
+- zignorowane slowa sa uwzgledniane przez `POST /spellcheck` tylko wtedy, gdy zapytanie
+  zawiera odpowiadajace `project_id`.
+
 ## Relacje
 
 - Uzytkownik moze byc wlascicielem wielu projektow.

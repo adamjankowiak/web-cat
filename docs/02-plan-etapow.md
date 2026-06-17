@@ -72,13 +72,30 @@ Artefakty Etapu 4:
 - `apps/api/tests/test_glossary.py`
 - `libs/shared/contracts/openapi.yaml`
 
-## Etap 5: Sprawdzanie pisowni
+## Etap 5: Sprawdzanie pisowni - zakonczony
 
-- Dodac endpoint sprawdzania tekstu docelowego.
-- Podlaczyc lokalny adapter Hunspell lub LanguageTool.
-- Pokazac bledy i sugestie w interfejsie.
-- Dodac ignorowanie slow dla projektu/uzytkownika.
-- Dodac testy dla kilku jezykow docelowych.
+- Dodano endpoint sprawdzania tekstu docelowego `POST /spellcheck`.
+- Wdrozono deterministyczny lokalny adapter slownikowy dla `pl`, `en` i `de` jako fallback
+  demonstracyjny bez zaleznosci od zewnetrznego LanguageTool.
+- Wyniki spellchecka zwracaja zakres `start`/`end`, token, komunikat, sugestie, kod reguly
+  i jezyk.
+- Wykorzystano istniejacy model `SpellcheckIgnore` do ignorowania slow dla projektu i jezyka.
+- Dodano endpointy `POST /spellcheck/ignore`, `GET /spellcheck/ignore` oraz
+  `DELETE /spellcheck/ignore/{ignore_id}`.
+- Panel spellcheck w edytorze pobiera realne wyniki z API, sprawdza aktualny tekst docelowy,
+  pozwala zastosowac sugestie w aktywnym segmencie i zignorowac slowo dla projektu.
+- Spellcheck pozostaje informacyjny; nie blokuje zatwierdzania segmentu.
+- Dodano testy backendowe dla kilku jezykow, pozycji bledow, sugestii, ignorowania i walidacji.
+
+Artefakty Etapu 5:
+
+- `apps/api/src/cat_api/services/spellcheck.py`
+- `apps/api/src/cat_api/api/routes/spellcheck.py`
+- `apps/api/src/cat_api/schemas/spellcheck.py`
+- `apps/frontend/src/features/spellcheck/SpellcheckPanel.tsx`
+- `apps/frontend/src/features/editor/TranslationEditor.tsx`
+- `apps/api/tests/test_spellcheck.py`
+- `libs/shared/contracts/openapi.yaml`
 
 ## Etap 6: Eksport i formaty CAT
 

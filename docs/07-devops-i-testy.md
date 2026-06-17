@@ -66,7 +66,27 @@ Po Etapie 4 dodano testy:
 - bledu `409`, gdy w tlumaczeniu wystepuje termin zakazany,
 - braku zapisu do pamieci tlumaczen po odrzuconym zatwierdzeniu.
 
+Po Etapie 5 dodano testy:
+
+- sprawdzania tekstu docelowego w jezyku polskim,
+- sprawdzania tekstu docelowego w jezyku angielskim,
+- sprawdzania tekstu docelowego w jezyku niemieckim,
+- czytelnego bledu dla nieobslugiwanego jezyka,
+- zwracania pozycji `start` i `end`,
+- zwracania sugestii poprawek,
+- ignorowania slowa dla projektu i jezyka,
+- braku bledu dla zignorowanego slowa,
+- idempotentnego dodawania ignorowanego slowa,
+- usuwania ignorowanego slowa,
+- walidacji pustego tekstu i brakujacego jezyka.
+
 Weryfikacja Etapu 4:
+
+- `cd apps/api && python -m pytest` - przechodzi,
+- `cd apps/api && python -m ruff check .` - przechodzi,
+- `cd apps/frontend && npm run build` - przechodzi.
+
+Weryfikacja Etapu 5:
 
 - `cd apps/api && python -m pytest` - przechodzi,
 - `cd apps/api && python -m ruff check .` - przechodzi,

@@ -83,7 +83,18 @@ Import CSV przyjmuje `text/csv`. Wymagane kolumny to `source_term`, `target_term
 
 - `POST /spellcheck`
 - `POST /spellcheck/ignore`
-- Status po Etapie 1: zaplanowane na Etap 5.
+- `GET /spellcheck/ignore`
+- `DELETE /spellcheck/ignore/{ignore_id}`
+- Status po Etapie 5: wdrozone i opisane w `libs/shared/contracts/openapi.yaml`.
+
+`POST /spellcheck` sprawdza tekst docelowy i zwraca liste `issues`. Kazdy blad zawiera
+`start`, `end`, `token`, `message`, `suggestions`, `rule_code` i `language`. Obslugiwane
+jezyki lokalnego fallbacku to `pl`, `en` i `de`; nieobslugiwany jezyk zwraca `400`.
+
+`POST /spellcheck/ignore` zapisuje slowo ignorowane dla projektu i jezyka. Dodawanie jest
+idempotentne dla tej samej trojki `project_id + language + word`, po normalizacji jezyka i slowa.
+`GET /spellcheck/ignore` zwraca ignorowane slowa projektu, opcjonalnie filtrowane po jezyku.
+`DELETE /spellcheck/ignore/{ignore_id}` usuwa wpis ignorowania.
 
 Przykladowe zapytanie:
 
@@ -91,7 +102,7 @@ Przykladowe zapytanie:
 {
   "language": "pl",
   "text": "To jest przykladowe tlumacznie docelowe.",
-  "projectId": "project-id"
+  "project_id": "project-id"
 }
 ```
 

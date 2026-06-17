@@ -123,6 +123,26 @@ Minimalny wynik sprawdzania:
 - sugestie poprawy,
 - kod reguły lub typ błędu.
 
+Stan po Etapie 5:
+
+- backend udostepnia `POST /spellcheck`, `POST /spellcheck/ignore`, `GET /spellcheck/ignore`
+  oraz `DELETE /spellcheck/ignore/{ignore_id}`,
+- sprawdzanie dziala na tekscie docelowym aktywnego segmentu,
+- lokalny adapter slownikowy jest deterministycznym fallbackiem demonstracyjnym dla `pl`, `en`
+  i `de`, dzieki czemu testy nie wymagaja zewnetrznego LanguageTool,
+- wynik zawiera `start`, `end`, token, komunikat, liste sugestii, kod reguly
+  `LOCAL_DICTIONARY_UNKNOWN_WORD` i jezyk,
+- ignorowane slowa sa zapisywane per projekt i jezyk w `SpellcheckIgnore`, a ponowne dodanie
+  tego samego slowa zwraca istniejacy wpis,
+- panel spellcheck w edytorze pobiera realne wyniki z API po kliknieciu `Check`, zeby nie
+  wykonywac requestow przy kazdym znaku,
+- panel pokazuje stany: brak aktywnego segmentu, brak tekstu docelowego, ladowanie, brak bledow,
+  blad API oraz potwierdzenie zignorowania slowa,
+- uzytkownik moze zastosowac sugestie przez podmiane zakresu bledu w aktualnym tekscie
+  docelowym albo zignorowac token dla projektu i jezyka,
+- spellcheck nie blokuje zatwierdzania segmentu; twarda walidacja zatwierdzania pozostaje po
+  stronie terminologii z Etapu 4.
+
 ## Import, eksport i QA
 
 Źródła z laboratoriów:
