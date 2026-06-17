@@ -102,6 +102,14 @@ npm install
 npm run dev
 ```
 
+Backend wykorzystuje RapidFuzz do fuzzy matchingu pamieci tlumaczen. Zaleznosc jest instalowana
+razem z pakietem API przez:
+
+```powershell
+cd apps/api
+python -m pip install -e .[dev]
+```
+
 Pomocniczy skrypt PowerShell:
 
 ```powershell

@@ -48,6 +48,17 @@ Minimalny wynik sugestii:
 - `domain`
 - `created_at`
 
+Stan po Etapie 3:
+
+- backend zapisuje wpis TM po zatwierdzeniu segmentu przez `POST /segments/{segment_id}/approve`,
+- endpoint `POST /translation-memory/search` zwraca posortowane sugestie exact/fuzzy,
+- exact match ma `score` 100 i `match_type` rowny `exact`,
+- fuzzy match jest liczony przez RapidFuzz i sortowany malejaco po score,
+- panel pamieci tlumaczen w edytorze pobiera sugestie z API dla aktywnego segmentu,
+- panel pokazuje score, typ dopasowania, tekst docelowy, tekst zrodlowy, domene i date,
+- klikniecie sugestii wstawia jej tekst docelowy do roboczego pola tlumaczenia aktywnego segmentu,
+- panel obsluguje stany ladowania, braku sugestii i bledu API.
+
 ## Słownik kontekstowy
 
 Słownik powinien odpowiadać na pytanie: jakie terminy z aktualnego segmentu mają ustalone tłumaczenie?

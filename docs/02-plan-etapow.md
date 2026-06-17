@@ -33,13 +33,24 @@ Artefakty Etapu 2:
 - `apps/frontend/src/features/editor/TranslationEditor.tsx`
 - `libs/shared/contracts/openapi.yaml`
 
-## Etap 3: Pamiec tlumaczen
+## Etap 3: Pamiec tlumaczen - zakonczony
 
-- Po zatwierdzeniu segmentu zapisac pare zrodlo-docelowy.
-- Dodac exact match po znormalizowanym tekscie zrodlowym.
-- Dodac fuzzy match z RapidFuzz albo `pg_trgm`.
-- Pokazywac najlepsze sugestie w panelu edytora.
-- Dodac metadane: para jezykowa, projekt, domena, autor, data.
+- Po zatwierdzeniu segmentu para zrodlo-docelowy jest zapisywana w pamieci tlumaczen.
+- Dodano exact match po `normalized_source_text` ze score 100 i typem `exact`.
+- Dodano fuzzy match przez RapidFuzz, zgodny z testami SQLite.
+- Panel edytora pobiera najlepsze sugestie z API dla aktywnego segmentu.
+- Dodano metadane: para jezykowa, projekt, domena, opcjonalny autor i data utworzenia.
+- Zatwierdzanie segmentu korzysta z `POST /segments/{segment_id}/approve`.
+
+Artefakty Etapu 3:
+
+- `apps/api/src/cat_api/services/translation_memory.py`
+- `apps/api/src/cat_api/api/routes/translation_memory.py`
+- `apps/api/src/cat_api/api/routes/segments.py`
+- `apps/frontend/src/features/translation-memory/TranslationMemoryPanel.tsx`
+- `apps/frontend/src/features/editor/TranslationEditor.tsx`
+- `apps/api/tests/test_translation_memory.py`
+- `libs/shared/contracts/openapi.yaml`
 
 ## Etap 4: Slownik kontekstowy
 

@@ -22,8 +22,8 @@ Po Etapie 1 kontrakt wspoldzielony opisuje wdrozony endpoint `GET /health` oraz 
 - `GET /documents/{document_id}/segments` - zwraca segmenty dokumentu.
 - `PATCH /segments/{segment_id}` - zapisuje robocze tlumaczenie lub status segmentu.
 - `POST /segments/{segment_id}/approve`
-- Status po Etapie 2: wdrozone poza osobnym endpointem zatwierdzania, ktory zostaje dla Etapu 3
-  przy integracji z pamiecia tlumaczen.
+- Status po Etapie 3: wdrozone. Zatwierdzanie wymaga niepustego `target_text`, ustawia status
+  `approved` i zapisuje pare zrodlo-docelowy do pamieci tlumaczen.
 
 ### Pamiec tlumaczen
 
@@ -31,7 +31,11 @@ Po Etapie 1 kontrakt wspoldzielony opisuje wdrozony endpoint `GET /health` oraz 
 - `POST /translation-memory/entries`
 - `GET /translation-memory/entries`
 - `DELETE /translation-memory/entries/{entry_id}`
-- Status po Etapie 1: zaplanowane na Etap 3.
+- Status po Etapie 3: wdrozone i opisane w `libs/shared/contracts/openapi.yaml`.
+
+Wyszukiwanie zwraca obiekt z lista `suggestions`. Kazda sugestia zawiera wpis TM, `score`
+oraz `match_type` (`exact` albo `fuzzy`). Exact match ma score 100. Fuzzy match jest liczony
+przez RapidFuzz po stronie backendu.
 
 Przykladowe zapytanie wyszukiwania:
 

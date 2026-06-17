@@ -43,6 +43,22 @@ Po Etapie 2 istnieja testy:
 - segmentacji po zdaniach i akapitach,
 - importu dokumentu TXT i zapisu roboczego tlumaczenia segmentu.
 
+Po Etapie 3 dodano testy:
+
+- normalizacji tekstu zrodlowego dla pamieci tlumaczen,
+- idempotentnego zapisu wpisu TM,
+- exact match ze score 100 i typem `exact`,
+- fuzzy match i sortowania wynikow malejaco po score,
+- wyszukiwania sugestii przez serwis,
+- zatwierdzania segmentu i automatycznego zapisu do TM,
+- bledu walidacji przy zatwierdzaniu segmentu bez tekstu docelowego.
+
+Weryfikacja Etapu 3:
+
+- `cd apps/api && python -m pytest` - przechodzi,
+- `cd apps/api && python -m ruff check .` - przechodzi,
+- `cd apps/frontend && npm run build` - wymagane do pelnej weryfikacji frontendu.
+
 ## Testy frontendu
 
 Zakres minimalny:

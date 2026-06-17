@@ -66,6 +66,16 @@ Statusy przykladowe: `new`, `draft`, `translated`, `reviewed`, `approved`.
 
 Indeksy startowe: `normalized_source_text`, para jezykowa, opcjonalnie indeks trigramowy dla fuzzy matchingu.
 
+Stan po Etapie 3:
+
+- model jest uzywany przez endpointy pamieci tlumaczen i zatwierdzanie segmentow,
+- `normalized_source_text` powstaje przez normalizacje Unicode, zamiane wybranych znakow
+  typograficznych, trim, zwiniecie bialych znakow i `casefold`,
+- exact match porownuje `normalized_source_text`,
+- fuzzy match jest liczony w Pythonie przez RapidFuzz, zeby testy backendu dzialaly na SQLite,
+- zapis wpisu jest idempotentny dla tej samej pary jezykowej, znormalizowanego zrodla,
+  tekstu docelowego, projektu i domeny.
+
 ### GlossaryTerm
 
 - `id`
