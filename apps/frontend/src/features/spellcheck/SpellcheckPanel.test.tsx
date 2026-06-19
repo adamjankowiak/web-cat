@@ -35,6 +35,7 @@ test("checks target text and applies a spelling suggestion", async () => {
 
   await userEvent.click(screen.getByRole("button", { name: /check/i }));
 
+  expect(screen.getByLabelText("Spellcheck language pl")).toHaveTextContent("pl");
   expect(await screen.findByText("plk")).toBeInTheDocument();
   await userEvent.click(screen.getByRole("button", { name: "plik" }));
 
@@ -44,6 +45,37 @@ test("checks target text and applies a spelling suggestion", async () => {
     project_id: "project-1"
   });
   expect(onApplySuggestion).toHaveBeenCalledWith(spellcheckIssue, { value: "plik" });
+});
+
+test("checks text with the active document target language", async () => {
+  const englishDocument = { ...documentRead, target_language: "en" };
+  mockedCheckSpelling.mockResolvedValue({
+    issues: [
+      {
+        ...spellcheckIssue,
+        language: "en",
+        token: "Ths",
+        suggestions: [{ value: "this" }]
+      }
+    ]
+  });
+
+  render(
+    <SpellcheckPanel
+      activeContext={{ document: englishDocument, segment: segments[0], targetText: "Ths file." }}
+      onApplySuggestion={vi.fn()}
+    />
+  );
+
+  expect(screen.getByLabelText("Spellcheck language en")).toHaveTextContent("en");
+  await userEvent.click(screen.getByRole("button", { name: /check/i }));
+
+  expect(await screen.findByText("Ths")).toBeInTheDocument();
+  expect(mockedCheckSpelling).toHaveBeenCalledWith({
+    language: "en",
+    text: "Ths file.",
+    project_id: "project-1"
+  });
 });
 
 test("ignores a spelling issue for the active project", async () => {

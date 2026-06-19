@@ -210,6 +210,12 @@ button:disabled {
   outline: 3px solid rgba(20, 184, 166, 0.22);
 }
 
+.language-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .document-chip {
   align-items: center;
   background: #10241f;
@@ -451,6 +457,18 @@ button:disabled {
   margin: 0;
 }
 
+.language-chip {
+  background: #10241f;
+  border: 1px solid #235348;
+  border-radius: 999px;
+  color: #8ee6d5;
+  font-size: 11px;
+  font-weight: 800;
+  margin-left: auto;
+  padding: 3px 8px;
+  text-transform: uppercase;
+}
+
 .suggestion-list,
 .term-list,
 .finding-list {
@@ -660,6 +678,7 @@ button:disabled {
   }
 
   .editor-grid,
+  .language-grid,
   .translation-columns,
   .side-panel {
     grid-template-columns: 1fr;

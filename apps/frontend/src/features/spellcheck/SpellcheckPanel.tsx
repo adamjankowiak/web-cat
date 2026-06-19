@@ -26,6 +26,7 @@ export function SpellcheckPanel({
   activeContext,
   onApplySuggestion
 }: SpellcheckPanelProps) {
+  const spellcheckLanguage = activeContext?.document.target_language ?? null;
   const [panelState, setPanelState] = useState<PanelState>("idle");
   const [issues, setIssues] = useState<SpellcheckIssue[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -117,6 +118,14 @@ export function SpellcheckPanel({
       <div className="panel-title">
         <SpellCheck2 size={18} aria-hidden="true" />
         <h2>Spellcheck</h2>
+        {spellcheckLanguage ? (
+          <span
+            aria-label={`Spellcheck language ${spellcheckLanguage}`}
+            className="language-chip"
+          >
+            {spellcheckLanguage}
+          </span>
+        ) : null}
       </div>
 
       <button

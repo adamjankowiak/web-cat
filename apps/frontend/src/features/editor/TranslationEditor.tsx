@@ -22,6 +22,7 @@ import {
 } from "../../lib/api-client";
 
 type EditorState = "loading" | "ready" | "empty" | "error";
+type ImportLanguage = "en" | "pl" | "de";
 type ActiveSegmentContext = {
   document: DocumentRead;
   segment: SegmentRead;
@@ -41,6 +42,12 @@ type TranslationEditorProps = {
   onActiveSegmentChange?: (context: ActiveSegmentContext | null) => void;
 };
 
+const LANGUAGE_OPTIONS: Array<{ value: ImportLanguage; label: string }> = [
+  { value: "en", label: "English" },
+  { value: "pl", label: "Polish" },
+  { value: "de", label: "German" }
+];
+
 export function TranslationEditor({
   appliedSuggestion = null,
   onActiveSegmentChange
@@ -53,6 +60,8 @@ export function TranslationEditor({
   const [isImporting, setIsImporting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [sourceLanguage, setSourceLanguage] = useState<ImportLanguage>("en");
+  const [targetLanguage, setTargetLanguage] = useState<ImportLanguage>("pl");
   const [segmentationStrategy, setSegmentationStrategy] =
     useState<SegmentationStrategy>("sentence");
   const [targets, setTargets] = useState<Record<string, string>>({});
@@ -176,8 +185,8 @@ export function TranslationEditor({
       const importedDocument = await importTxtDocument({
         content,
         filename: file.name,
-        source_language: "en",
-        target_language: "pl",
+        source_language: sourceLanguage,
+        target_language: targetLanguage,
         segmentation_strategy: segmentationStrategy
       });
 
@@ -323,6 +332,36 @@ export function TranslationEditor({
               <option value="paragraph">Paragraphs</option>
             </select>
           </label>
+
+          <div className="language-grid">
+            <label className="field-label">
+              <span>Source language</span>
+              <select
+                onChange={(event) => setSourceLanguage(event.target.value as ImportLanguage)}
+                value={sourceLanguage}
+              >
+                {LANGUAGE_OPTIONS.map((language) => (
+                  <option key={language.value} value={language.value}>
+                    {language.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="field-label">
+              <span>Target language</span>
+              <select
+                onChange={(event) => setTargetLanguage(event.target.value as ImportLanguage)}
+                value={targetLanguage}
+              >
+                {LANGUAGE_OPTIONS.map((language) => (
+                  <option key={language.value} value={language.value}>
+                    {language.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
 
           {detail ? (
             <div className="document-chip" title={detail.document.filename}>

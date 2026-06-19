@@ -34,6 +34,9 @@ export function App() {
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [activeContext, setActiveContext] = useState<ActiveSegmentContext | null>(null);
   const [appliedSuggestion, setAppliedSuggestion] = useState<AppliedSuggestion | null>(null);
+  const languagePair = activeContext
+    ? `${activeContext.document.source_language.toUpperCase()} to ${activeContext.document.target_language.toUpperCase()}`
+    : "EN to PL";
 
   useEffect(() => {
     let mounted = true;
@@ -66,7 +69,7 @@ export function App() {
           </div>
           <div>
             <h1>Web CAT</h1>
-            <span>Software UI / EN to PL</span>
+            <span>Software UI / {languagePair}</span>
           </div>
         </div>
 

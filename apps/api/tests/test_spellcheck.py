@@ -67,6 +67,37 @@ def test_spellcheck_returns_german_target_text_issue() -> None:
     _close_test_client(client)
 
 
+def test_spellcheck_results_are_deterministic() -> None:
+    client = _build_test_client()[0]
+
+    payload = {"language": "pl", "text": "To jest tlumacznie docelowe."}
+    first_response = client.post("/spellcheck", json=payload)
+    second_response = client.post("/spellcheck", json=payload)
+
+    assert first_response.status_code == 200
+    assert second_response.status_code == 200
+    assert first_response.json() == second_response.json()
+
+    _close_test_client(client)
+
+
+def test_spellcheck_does_not_flag_known_words_for_supported_languages() -> None:
+    client = _build_test_client()[0]
+
+    examples = [
+        {"language": "pl", "text": "Zapisz plik."},
+        {"language": "en", "text": "Save the file."},
+        {"language": "de", "text": "Speichern Sie die Datei."},
+    ]
+
+    for payload in examples:
+        response = client.post("/spellcheck", json=payload)
+        assert response.status_code == 200
+        assert response.json()["issues"] == []
+
+    _close_test_client(client)
+
+
 def test_spellcheck_unsupported_language_returns_clear_error() -> None:
     client = _build_test_client()[0]
 

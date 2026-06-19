@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 
 import {
   approveSegment,
+  exportDocumentTxt,
   getDocument,
   importTxtDocument,
   listDocuments,
@@ -33,6 +34,7 @@ const mockedGetDocument = vi.mocked(getDocument);
 const mockedImportTxtDocument = vi.mocked(importTxtDocument);
 const mockedUpdateSegment = vi.mocked(updateSegment);
 const mockedApproveSegment = vi.mocked(approveSegment);
+const mockedExportDocumentTxt = vi.mocked(exportDocumentTxt);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -98,6 +100,44 @@ test("imports a TXT document through the hidden file input", async () => {
   expect(await screen.findByText("TXT import completed.")).toBeInTheDocument();
 });
 
+test("imports a TXT document with selected source and target languages", async () => {
+  const user = userEvent.setup();
+  const importedDetail = {
+    document: {
+      ...documentRead,
+      id: "document-imported",
+      filename: "english-target.txt",
+      source_language: "de",
+      target_language: "en"
+    },
+    segments: [segments[0]]
+  };
+  mockedListDocuments.mockResolvedValue([]);
+  mockedImportTxtDocument.mockResolvedValue(importedDetail);
+
+  const { container } = render(<TranslationEditor />);
+  await user.selectOptions(await screen.findByLabelText("Source language"), "de");
+  await user.selectOptions(screen.getByLabelText("Target language"), "en");
+
+  const fileInput = container.querySelector('input[type="file"]');
+  expect(fileInput).toBeInstanceOf(HTMLInputElement);
+
+  const file = new File(["Dies ist der Ausgangstext."], "english-target.txt", {
+    type: "text/plain"
+  });
+  await user.upload(fileInput as HTMLInputElement, file);
+
+  await waitFor(() =>
+    expect(mockedImportTxtDocument).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filename: "english-target.txt",
+        source_language: "de",
+        target_language: "en"
+      })
+    )
+  );
+});
+
 test("saves target text as a draft", async () => {
   mockedListDocuments.mockResolvedValue([documentRead]);
   mockedGetDocument.mockResolvedValue(documentDetail);
@@ -153,4 +193,30 @@ test("approves the active segment after persisting target text", async () => {
   expect(within(screen.getByLabelText("Segment 1")).getByRole("heading")).toHaveTextContent(
     "approved"
   );
+});
+
+test("exports TXT after persisting the active segment draft", async () => {
+  mockedListDocuments.mockResolvedValue([documentRead]);
+  mockedGetDocument.mockResolvedValue(documentDetail);
+  mockedUpdateSegment.mockResolvedValue({
+    ...segments[0],
+    target_text: "Zapisz plik.",
+    status: "draft"
+  });
+  mockedExportDocumentTxt.mockResolvedValue();
+
+  render(<TranslationEditor />);
+
+  const target = await screen.findByLabelText("Target");
+  await userEvent.clear(target);
+  await userEvent.type(target, "Zapisz plik.");
+  await userEvent.click(screen.getByRole("button", { name: /export txt/i }));
+
+  await waitFor(() =>
+    expect(mockedUpdateSegment).toHaveBeenCalledWith("segment-1", {
+      target_text: "Zapisz plik."
+    })
+  );
+  expect(mockedExportDocumentTxt).toHaveBeenCalledWith("document-1");
+  expect(await screen.findByText("TXT export started.")).toBeInTheDocument();
 });

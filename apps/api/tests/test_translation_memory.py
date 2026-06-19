@@ -128,6 +128,37 @@ def test_translation_memory_search_returns_sorted_fuzzy_matches() -> None:
     client.close()
 
 
+def test_translation_memory_search_returns_no_result_below_min_score() -> None:
+    client = _build_test_client()[0]
+
+    create_response = client.post(
+        "/translation-memory/entries",
+        json={
+            "source_language": "en",
+            "target_language": "pl",
+            "source_text": "Save the file.",
+            "target_text": "Zapisz plik.",
+        },
+    )
+    assert create_response.status_code == 201
+
+    response = client.post(
+        "/translation-memory/search",
+        json={
+            "source_language": "en",
+            "target_language": "pl",
+            "source_text": "The contract expires next Friday.",
+            "min_score": 80,
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["suggestions"] == []
+
+    app.dependency_overrides.clear()
+    client.close()
+
+
 def test_service_search_suggestions_includes_exact_and_fuzzy() -> None:
     client, testing_session = _build_test_client()
 

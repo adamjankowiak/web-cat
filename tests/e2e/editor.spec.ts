@@ -17,7 +17,7 @@ const timestamp = "2026-06-17T10:00:00Z";
 const document = {
   id: "document-e2e",
   project_id: "project-e2e",
-  filename: "sample_source.txt",
+  filename: "software-cat-source.txt",
   source_language: "en",
   target_language: "pl",
   status: "imported",
@@ -148,15 +148,17 @@ test("runs the MVP CAT editor flow with mocked API responses", async ({ page }) 
   await page.goto("/");
   await expect(page.getByText("No documents")).toBeVisible();
 
-  await page.locator('input[type="file"]').setInputFiles("../../tests/fixtures/sample_source.txt");
+  await page
+    .locator('input[type="file"]')
+    .setInputFiles("../../data/samples/documents/software-cat-source.txt");
   await expect(page.getByText("TXT import completed.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Save the file." })).toBeVisible();
 
-  await page.getByLabel("Target").fill("Zapisz plk.");
+  await page.getByRole("textbox", { name: "Target" }).fill("Zapisz plk.");
   await page.getByRole("button", { name: "Check" }).click();
   await expect(page.locator(".finding-row").filter({ hasText: "plk" })).toBeVisible();
   await page.getByRole("button", { name: "plik" }).click();
-  await expect(page.getByLabel("Target")).toHaveValue("Zapisz plik.");
+  await expect(page.getByRole("textbox", { name: "Target" })).toHaveValue("Zapisz plik.");
 
   await page.getByRole("button", { name: "Approve" }).click();
   await expect(page.getByRole("heading", { name: "approved" })).toBeVisible();
@@ -166,7 +168,7 @@ test("runs the MVP CAT editor flow with mocked API responses", async ({ page }) 
   await expect(page.locator(".term-row").filter({ hasText: "window" })).toBeVisible();
 
   await page.getByRole("button", { name: /82% fuzzy zapisz plik/i }).click();
-  await expect(page.getByLabel("Target")).toHaveValue("Zapisz plik.");
+  await expect(page.getByRole("textbox", { name: "Target" })).toHaveValue("Zapisz plik.");
   await page.getByRole("button", { name: "Export TXT" }).click();
   await expect(page.getByText("TXT export started.")).toBeVisible();
 });
