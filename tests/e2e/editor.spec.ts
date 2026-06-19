@@ -149,16 +149,18 @@ test("runs the MVP CAT editor flow with mocked API responses", async ({ page }) 
   await expect(page.getByText("No documents")).toBeVisible();
 
   await page
-    .locator('input[type="file"]')
+    .locator('input[type="file"][accept=".txt,text/plain"]')
     .setInputFiles("../../data/samples/documents/software-cat-source.txt");
   await expect(page.getByText("TXT import completed.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Save the file." })).toBeVisible();
 
-  await page.getByRole("textbox", { name: "Target" }).fill("Zapisz plk.");
+  await page.getByRole("textbox", { name: "Target", exact: true }).fill("Zapisz plk.");
   await page.getByRole("button", { name: "Check" }).click();
   await expect(page.locator(".finding-row").filter({ hasText: "plk" })).toBeVisible();
   await page.getByRole("button", { name: "plik" }).click();
-  await expect(page.getByRole("textbox", { name: "Target" })).toHaveValue("Zapisz plik.");
+  await expect(page.getByRole("textbox", { name: "Target", exact: true })).toHaveValue(
+    "Zapisz plik."
+  );
 
   await page.getByRole("button", { name: "Approve" }).click();
   await expect(page.getByRole("heading", { name: "approved" })).toBeVisible();
@@ -168,7 +170,9 @@ test("runs the MVP CAT editor flow with mocked API responses", async ({ page }) 
   await expect(page.locator(".term-row").filter({ hasText: "window" })).toBeVisible();
 
   await page.getByRole("button", { name: /82% fuzzy zapisz plik/i }).click();
-  await expect(page.getByRole("textbox", { name: "Target" })).toHaveValue("Zapisz plik.");
+  await expect(page.getByRole("textbox", { name: "Target", exact: true })).toHaveValue(
+    "Zapisz plik."
+  );
   await page.getByRole("button", { name: "Export TXT" }).click();
   await expect(page.getByText("TXT export started.")).toBeVisible();
 });

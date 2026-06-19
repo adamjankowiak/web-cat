@@ -14,6 +14,7 @@ import {
   importTxtDocument,
   isTerminologyValidationDetail,
   listDocuments,
+  seedDemoData,
   type DocumentDetailRead,
   type DocumentRead,
   type SegmentRead,
@@ -57,6 +58,7 @@ export function TranslationEditor({
   const [detail, setDetail] = useState<DocumentDetailRead | null>(null);
   const [editorState, setEditorState] = useState<EditorState>("loading");
   const [exporting, setExporting] = useState<string | null>(null);
+  const [isLoadingDemo, setIsLoadingDemo] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -201,6 +203,25 @@ export function TranslationEditor({
     }
   }
 
+  async function handleLoadDemo() {
+    setIsLoadingDemo(true);
+    setMessage(null);
+
+    try {
+      const seededDemo = await seedDemoData();
+      syncDocument(seededDemo.document);
+      setEditorState("ready");
+      setMessage(
+        `Demo data loaded: ${seededDemo.translation_memory_count} TM entries, ${seededDemo.glossary_count} glossary terms.`
+      );
+    } catch (error) {
+      setMessage(getErrorMessage(error));
+      setEditorState(detail ? "ready" : "error");
+    } finally {
+      setIsLoadingDemo(false);
+    }
+  }
+
   async function handleExport(
     exportType: "txt" | "xliff" | "tmx" | "tbx",
     action: () => Promise<void>
@@ -318,6 +339,15 @@ export function TranslationEditor({
           >
             <Upload size={17} aria-hidden="true" />
             {isImporting ? "Importing" : "Import TXT"}
+          </button>
+          <button
+            className="command-button command-button--full"
+            disabled={isLoadingDemo}
+            onClick={handleLoadDemo}
+            type="button"
+          >
+            <FileText size={17} aria-hidden="true" />
+            {isLoadingDemo ? "Loading demo" : "Load demo"}
           </button>
 
           <label className="field-label">

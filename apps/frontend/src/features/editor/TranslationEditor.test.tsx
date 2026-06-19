@@ -7,6 +7,7 @@ import {
   getDocument,
   importTxtDocument,
   listDocuments,
+  seedDemoData,
   updateSegment
 } from "../../lib/api-client";
 import { documentDetail, documentRead, segments } from "../../test/test-data";
@@ -25,6 +26,7 @@ vi.mock("../../lib/api-client", async (importOriginal) => {
     getDocument: vi.fn(),
     importTxtDocument: vi.fn(),
     listDocuments: vi.fn(),
+    seedDemoData: vi.fn(),
     updateSegment: vi.fn()
   };
 });
@@ -35,6 +37,7 @@ const mockedImportTxtDocument = vi.mocked(importTxtDocument);
 const mockedUpdateSegment = vi.mocked(updateSegment);
 const mockedApproveSegment = vi.mocked(approveSegment);
 const mockedExportDocumentTxt = vi.mocked(exportDocumentTxt);
+const mockedSeedDemoData = vi.mocked(seedDemoData);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -98,6 +101,25 @@ test("imports a TXT document through the hidden file input", async () => {
     })
   );
   expect(await screen.findByText("TXT import completed.")).toBeInTheDocument();
+});
+
+test("loads seeded demo data into the editor", async () => {
+  mockedListDocuments.mockResolvedValue([]);
+  mockedSeedDemoData.mockResolvedValue({
+    document: documentDetail,
+    glossary_count: 4,
+    translation_memory_count: 2
+  });
+
+  render(<TranslationEditor />);
+
+  await userEvent.click(await screen.findByRole("button", { name: /load demo/i }));
+
+  await waitFor(() => expect(mockedSeedDemoData).toHaveBeenCalled());
+  expect(await screen.findByText("demo.txt")).toBeInTheDocument();
+  expect(
+    await screen.findByText("Demo data loaded: 2 TM entries, 4 glossary terms.")
+  ).toBeInTheDocument();
 });
 
 test("imports a TXT document with selected source and target languages", async () => {

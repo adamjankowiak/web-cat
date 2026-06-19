@@ -34,6 +34,12 @@ export type DocumentDetailRead = {
   segments: SegmentRead[];
 };
 
+export type DemoSeedResponse = {
+  document: DocumentDetailRead;
+  translation_memory_count: number;
+  glossary_count: number;
+};
+
 export type DocumentImportRequest = {
   filename: string;
   content: string;
@@ -98,6 +104,20 @@ export type GlossaryTermRead = {
   example_target: string | null;
 };
 
+export type GlossaryTermCreateRequest = {
+  project_id?: string | null;
+  source_language: string;
+  target_language: string;
+  source_term: string;
+  target_term: string;
+  definition?: string | null;
+  domain?: string | null;
+  case_sensitive?: boolean;
+  forbidden?: boolean;
+  example_source?: string | null;
+  example_target?: string | null;
+};
+
 export type GlossaryTermMatch = {
   term: GlossaryTermRead;
   start: number;
@@ -115,6 +135,11 @@ export type GlossarySearchRequest = {
 
 export type GlossarySearchResponse = {
   matches: GlossaryTermMatch[];
+};
+
+export type GlossaryImportResponse = {
+  imported_count: number;
+  terms: GlossaryTermRead[];
 };
 
 export type TerminologyViolation = {
@@ -197,6 +222,12 @@ export async function getDocument(documentId: string): Promise<DocumentDetailRea
   return requestJson<DocumentDetailRead>(`/documents/${documentId}`);
 }
 
+export async function seedDemoData(): Promise<DemoSeedResponse> {
+  return requestJson<DemoSeedResponse>("/demo/seed", {
+    method: "POST"
+  });
+}
+
 export async function exportDocumentTxt(documentId: string): Promise<void> {
   await downloadFile(`/documents/${documentId}/export.txt`);
 }
@@ -269,6 +300,28 @@ export async function searchGlossary(
   });
 }
 
+export async function createGlossaryTerm(
+  payload: GlossaryTermCreateRequest
+): Promise<GlossaryTermRead> {
+  return requestJson<GlossaryTermRead>("/glossary/terms", {
+    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json"
+    },
+    method: "POST"
+  });
+}
+
+export async function importGlossaryCsv(csvContent: string): Promise<GlossaryImportResponse> {
+  return requestJson<GlossaryImportResponse>("/glossary/import-csv", {
+    body: csvContent,
+    headers: {
+      "Content-Type": "text/csv"
+    },
+    method: "POST"
+  });
+}
+
 export async function exportGlossaryTbx(filters?: {
   source_language?: string;
   target_language?: string;
@@ -276,6 +329,16 @@ export async function exportGlossaryTbx(filters?: {
   project_id?: string | null;
 }): Promise<void> {
   await downloadFile(`/glossary/export.tbx${formatQuery(filters)}`);
+}
+
+export async function importGlossaryTbx(tbxContent: string): Promise<GlossaryImportResponse> {
+  return requestJson<GlossaryImportResponse>("/glossary/import-tbx", {
+    body: tbxContent,
+    headers: {
+      "Content-Type": "application/xml"
+    },
+    method: "POST"
+  });
 }
 
 export async function checkSpelling(

@@ -26,6 +26,38 @@ slownik kontekstowy, walidacje terminologii, prosty spellcheck oraz eksport form
 - `infra` - konfiguracje Docker.
 - `tests` - test e2e i fixture'y.
 
+## Szybki start z DEMO
+
+Po sklonowaniu repozytorium najkrotsza sciezka do gotowego scenariusza wyglada tak:
+
+### Docker
+
+```powershell
+Copy-Item .env.example .env
+docker compose up -d --build
+docker compose exec -T api alembic upgrade head
+```
+
+Otworz `http://localhost:5173` i kliknij `Load demo`.
+
+### Lokalnie
+
+Uruchom backend i frontend zgodnie z sekcja [Uruchomienie lokalne](#uruchomienie-lokalne),
+a potem otworz `http://localhost:5173` i kliknij `Load demo`.
+
+Przycisk `Load demo` wywoluje `POST /demo/seed` i laduje do bazy gotowy zestaw z
+`data/samples`:
+
+- dokument `software-cat-source.txt`,
+- startowa pamiec tlumaczen `software-cat-memory.tmx`,
+- slownik `software-cat-glossary.tbx` z terminami wymaganymi i zakazanymi.
+
+Po zaladowaniu demo w edytorze od razu widac segmenty dokumentu, sugestie pamieci
+tlumaczen, terminy slownikowe i spellcheck dla jezyka docelowego. Endpoint seedujacy jest
+idempotentny dla dokumentu demo, wiec ponowne klikniecie nie tworzy kolejnych kopii dokumentu.
+Obraz API w Dockerze zawiera pliki `data/samples`, wiec demo dziala tak samo w kontenerach
+i lokalnie.
+
 ## Uruchomienie lokalne
 
 Backend:
@@ -65,11 +97,10 @@ Pomocniczy skrypt PowerShell:
 
 ## Uruchomienie przez Docker
 
-```powershell
-Copy-Item .env.example .env
-docker compose up -d --build
-docker compose exec -T api alembic upgrade head
-```
+Pelny stack Docker uruchamia wariant Docker z sekcji [Szybki start z DEMO](#szybki-start-z-demo).
+Te same komendy wystawiaja API na `http://localhost:8000` i frontend na
+`http://localhost:5173`. Demo jest opcjonalne i laduje sie dopiero po kliknieciu `Load demo`
+albo wywolaniu `POST /demo/seed`.
 
 Wymagania: uruchomiony Docker Desktop, aktywny Linux Engine i wolne porty `5432`,
 `6379`, `8000` oraz `5173`.
@@ -123,24 +154,9 @@ Dane demonstracyjne sa w `data/samples`:
 - `data/samples/glossaries/software-cat-glossary.tbx` - slownik TBX.
 - `data/samples/spellcheck-target-with-error.txt` - tekst z celowym bledem spellcheck.
 
-Przykladowe przygotowanie danych przez API:
-
-```powershell
-cd apps/api
-python -m uvicorn cat_api.main:app --reload
-```
-
-W drugim terminalu z katalogu glownego repozytorium:
-
-```powershell
-Invoke-RestMethod -Uri http://localhost:8000/translation-memory/import-tmx -Method Post -ContentType "application/xml" -InFile data/samples/translation-memory/software-cat-memory.tmx
-Invoke-RestMethod -Uri http://localhost:8000/glossary/import-tbx -Method Post -ContentType "application/xml" -InFile data/samples/glossaries/software-cat-glossary.tbx
-```
-
-Nastepnie w frontendzie zaimportuj `data/samples/documents/software-cat-source.txt`,
-otworz pierwszy segment, wpisz `Zapisz plk.`, uruchom spellcheck, zastosuj sugestie
-`plik`, zatwierdz segment, przejdz do podobnego segmentu i sprawdz sugestie TM oraz
-terminy slownikowe. Na koniec pobierz wynik przez `Export TXT`.
+Po zaladowaniu demo otworz pierwszy segment, wpisz `Zapisz plk.`, uruchom spellcheck,
+zastosuj sugestie `plik`, zatwierdz segment, przejdz do podobnego segmentu i sprawdz
+sugestie TM oraz terminy slownikowe. Na koniec pobierz wynik przez `Export TXT`.
 
 ## Szybkie API
 
@@ -156,6 +172,12 @@ $payload = @{
 } | ConvertTo-Json
 
 Invoke-RestMethod -Uri http://localhost:8000/documents -Method Post -ContentType "application/json" -Body $payload
+```
+
+Zaladowanie danych demo:
+
+```powershell
+Invoke-RestMethod -Uri http://localhost:8000/demo/seed -Method Post
 ```
 
 Eksporty:

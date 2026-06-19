@@ -19,6 +19,21 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthResponse"
+  /demo/seed:
+    post:
+      summary: Seed bundled demo data
+      operationId: seedDemoData
+      tags:
+        - demo
+      responses:
+        "201":
+          description: Bundled demo document, translation memory and glossary loaded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DemoSeedResponse"
+        "500":
+          description: Demo sample files could not be loaded.
   /documents:
     get:
       summary: List imported documents
@@ -785,6 +800,21 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Segment"
+    DemoSeedResponse:
+      type: object
+      required:
+        - document
+        - translation_memory_count
+        - glossary_count
+      properties:
+        document:
+          $ref: "#/components/schemas/DocumentDetail"
+        translation_memory_count:
+          type: integer
+          minimum: 0
+        glossary_count:
+          type: integer
+          minimum: 0
     Segment:
       type: object
       required:

@@ -23,6 +23,7 @@ body {
 }
 
 button,
+input,
 select,
 textarea {
   font: inherit;
@@ -194,6 +195,7 @@ button:disabled {
   font-weight: 700;
 }
 
+.field-label input,
 .field-label select {
   appearance: none;
   background: #0f1411;
@@ -205,6 +207,7 @@ button:disabled {
   width: 100%;
 }
 
+.field-label input:focus,
 .field-label select:focus {
   border-color: #14b8a6;
   outline: 3px solid rgba(20, 184, 166, 0.22);
@@ -474,6 +477,52 @@ button:disabled {
 .finding-list {
   display: grid;
   gap: 8px;
+}
+
+.glossary-manager {
+  border-bottom: 1px solid #2e3b34;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+}
+
+.glossary-import-actions {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.glossary-import-actions .command-button,
+.term-form .command-button {
+  font-size: 12px;
+  min-height: 34px;
+  padding: 0 8px;
+}
+
+.term-form {
+  display: grid;
+  gap: 8px;
+}
+
+.term-form-options {
+  display: grid;
+  gap: 6px;
+}
+
+.checkbox-field {
+  align-items: center;
+  color: #a3b2aa;
+  display: flex;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 8px;
+}
+
+.checkbox-field input {
+  accent-color: #14b8a6;
+  height: 15px;
+  width: 15px;
 }
 
 .spellcheck-command {

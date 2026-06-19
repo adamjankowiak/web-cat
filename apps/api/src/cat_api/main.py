@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from cat_api.api.routes import documents, glossary, segments, spellcheck, translation_memory
+from cat_api.api.routes import demo, documents, glossary, segments, spellcheck, translation_memory
 from cat_api.core.config import get_settings
 from cat_api.schemas.health import HealthResponse
 
@@ -23,6 +23,7 @@ def create_app() -> FastAPI:
         return HealthResponse(status="ok", service="cat-api", version=settings.app_version)
 
     app.include_router(documents.router)
+    app.include_router(demo.router)
     app.include_router(segments.router)
     app.include_router(glossary.router)
     app.include_router(spellcheck.router)
