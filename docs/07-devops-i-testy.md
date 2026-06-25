@@ -101,7 +101,7 @@ Po Etapie 7 dodano:
   segmentacje, zapis draftu, approve, zapis do TM, sugestie TM dla podobnego segmentu,
   wyszukiwanie slownika, walidacje terminologii, spellcheck, eksport TXT oraz import/eksport
   TMX i TBX,
-- lacznie 42 testy backendu uruchamiane przez `python -m pytest`.
+- pelny zestaw testow backendu uruchamiany przez `python -m pytest`.
 
 Weryfikacja Etapu 4:
 

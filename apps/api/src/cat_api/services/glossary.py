@@ -118,7 +118,9 @@ def search_glossary_terms(
                 )
             )
 
-    matches.sort(key=lambda match: (match.start, -(match.end - match.start), match.term.source_term))
+    matches.sort(
+        key=lambda match: (match.start, -(match.end - match.start), match.term.source_term)
+    )
     return matches
 
 
@@ -220,7 +222,9 @@ def import_glossary_csv(session: Session, csv_content: str) -> list[GlossaryTerm
                 forbidden=_parse_csv_bool(cleaned_row.get("forbidden"), row_number),
                 example_source=cleaned_row.get("example_source"),
                 example_target=cleaned_row.get("example_target"),
-                project_id=UUID(cleaned_row["project_id"]) if cleaned_row.get("project_id") else None,
+                project_id=UUID(cleaned_row["project_id"])
+                if cleaned_row.get("project_id")
+                else None,
             )
         except ValueError as exc:
             row_errors.append(str(exc))
@@ -248,7 +252,9 @@ def _candidate_terms(
     )
 
     if domain is not None:
-        statement = statement.where((GlossaryTerm.domain == domain) | (GlossaryTerm.domain.is_(None)))
+        statement = statement.where(
+            (GlossaryTerm.domain == domain) | (GlossaryTerm.domain.is_(None))
+        )
 
     if project_id is not None:
         statement = statement.where(

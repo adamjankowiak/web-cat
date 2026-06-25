@@ -102,7 +102,9 @@ def test_mvp_flow_from_import_to_tm_glossary_spellcheck_and_exports(
     assert terminology_failure.status_code == 200
     approval_failure = client.post(f"/segments/{second_segment_id}/approve")
     assert approval_failure.status_code == 409
-    assert approval_failure.json()["detail"]["violations"][0]["violation_type"] == "missing_required"
+    assert (
+        approval_failure.json()["detail"]["violations"][0]["violation_type"] == "missing_required"
+    )
 
     spellcheck_response = client.post(
         "/spellcheck",
@@ -122,9 +124,7 @@ def test_mvp_flow_from_import_to_tm_glossary_spellcheck_and_exports(
     txt_response = client.get(f"/documents/{document_id}/export.txt")
     assert txt_response.status_code == 200
     assert txt_response.text == (
-        "Zapisz plik.\n"
-        "Zapisz plik przed zamknieciem okno.\n"
-        "Open the translation memory panel."
+        "Zapisz plik.\nZapisz plik przed zamknieciem okno.\nOpen the translation memory panel."
     )
 
     exported_tmx = client.get("/translation-memory/export.tmx")

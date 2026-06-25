@@ -1,4 +1,4 @@
-import { CheckCircle2, Download, FileText, Save, Search, Upload } from "lucide-react";
+import { CheckCircle2, Download, FileText, Save, Upload } from "lucide-react";
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -16,27 +16,14 @@ import {
   listDocuments,
   seedDemoData,
   type DocumentDetailRead,
-  type DocumentRead,
   type SegmentRead,
   type SegmentationStrategy,
   updateSegment
 } from "../../lib/api-client";
+import type { ActiveSegmentContext, AppliedSuggestion } from "../../lib/types";
 
 type EditorState = "loading" | "ready" | "empty" | "error";
 type ImportLanguage = "en" | "pl" | "de";
-type ActiveSegmentContext = {
-  document: DocumentRead;
-  segment: SegmentRead;
-  targetText: string;
-};
-type AppliedSuggestion = {
-  segmentId: string;
-  targetText: string;
-  appliedAt: number;
-  mode?: "replace" | "append" | "range";
-  start?: number;
-  end?: number;
-};
 
 type TranslationEditorProps = {
   appliedSuggestion?: AppliedSuggestion | null;
@@ -473,14 +460,6 @@ export function TranslationEditor({
               </div>
 
               <div className="toolbar-actions">
-                <button
-                  className="icon-button"
-                  title="Search memory"
-                  aria-label="Search memory"
-                  type="button"
-                >
-                  <Search size={18} />
-                </button>
                 <button
                   className="command-button"
                   disabled={isSaving}

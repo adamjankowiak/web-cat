@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
@@ -22,6 +23,8 @@ XML_LANG = "{http://www.w3.org/XML/1998/namespace}lang"
 XLIFF_NS = "urn:oasis:names:tc:xliff:document:1.2"
 ElementTree.register_namespace("", XLIFF_NS)
 
+_DOCTYPE_RE = re.compile(r"<!DOCTYPE", re.IGNORECASE)
+
 
 @dataclass(frozen=True)
 class TmxImportResult:
@@ -34,7 +37,11 @@ class TmxImportResult:
 
 def export_document_txt(document: Document) -> str:
     return "\n".join(
-        (segment.target_text.strip() if segment.target_text and segment.target_text.strip() else segment.source_text)
+        (
+            segment.target_text.strip()
+            if segment.target_text and segment.target_text.strip()
+            else segment.source_text
+        )
         for segment in sorted(document.segments, key=lambda segment: segment.position)
     )
 
@@ -197,16 +204,22 @@ def export_tbx(
         term_entry = ElementTree.SubElement(body, "termEntry", {"id": str(term.id)})
         _add_optional_descrip(term_entry, "domain", term.domain)
         _add_optional_descrip(term_entry, "definition", term.definition)
-        _add_optional_descrip(term_entry, "project_id", str(term.project_id) if term.project_id else None)
+        _add_optional_descrip(
+            term_entry, "project_id", str(term.project_id) if term.project_id else None
+        )
         _add_optional_descrip(term_entry, "case_sensitive", _format_bool(term.case_sensitive))
         _add_optional_descrip(term_entry, "forbidden", _format_bool(term.forbidden))
 
-        source_lang_set = ElementTree.SubElement(term_entry, "langSet", {XML_LANG: term.source_language})
+        source_lang_set = ElementTree.SubElement(
+            term_entry, "langSet", {XML_LANG: term.source_language}
+        )
         source_tig = ElementTree.SubElement(source_lang_set, "tig")
         source_term = ElementTree.SubElement(source_tig, "term")
         source_term.text = term.source_term
 
-        target_lang_set = ElementTree.SubElement(term_entry, "langSet", {XML_LANG: term.target_language})
+        target_lang_set = ElementTree.SubElement(
+            term_entry, "langSet", {XML_LANG: term.target_language}
+        )
         target_tig = ElementTree.SubElement(target_lang_set, "tig")
         target_term = ElementTree.SubElement(target_tig, "term")
         target_term.text = term.target_term
@@ -232,7 +245,9 @@ def import_tbx(session: Session, tbx_content: str) -> list[GlossaryTerm]:
         lang_terms = _read_lang_terms(term_entry)
 
         if len(lang_terms) < 2:
-            raise ValueError(f"TBX termEntry #{index} must contain at least two langSet/term pairs.")
+            raise ValueError(
+                f"TBX termEntry #{index} must contain at least two langSet/term pairs."
+            )
 
         source_language, source_term = lang_terms[0]
         target_language, target_term = lang_terms[1]
@@ -249,7 +264,9 @@ def import_tbx(session: Session, tbx_content: str) -> list[GlossaryTerm]:
             domain=properties.get("domain"),
             case_sensitive=_parse_bool(properties.get("case_sensitive"), default=False),
             forbidden=_parse_bool(properties.get("forbidden"), default=False),
-            project_id=_parse_optional_uuid(properties.get("project_id"), f"TBX termEntry #{index}"),
+            project_id=_parse_optional_uuid(
+                properties.get("project_id"), f"TBX termEntry #{index}"
+            ),
         )
         terms.append(_save_glossary_term_once(session, payload))
 
@@ -264,6 +281,12 @@ def _xml_to_string(root: ElementTree.Element) -> str:
 
 
 def _parse_xml(content: str, format_name: str) -> ElementTree.Element:
+    # Reject inline DTDs before parsing. Internal entity definitions are the
+    # vector for entity-expansion ("billion laughs") denial-of-service bombs,
+    # and well-formed TMX/TBX uploads never need a DOCTYPE.
+    if _DOCTYPE_RE.search(content):
+        raise ValueError(f"{format_name} XML must not contain a DTD/DOCTYPE declaration.")
+
     try:
         return ElementTree.fromstring(content)
     except ElementTree.ParseError as exc:
@@ -286,7 +309,9 @@ def _add_optional_prop(parent: ElementTree.Element, prop_type: str, value: str |
     prop.text = value
 
 
-def _add_optional_descrip(parent: ElementTree.Element, descrip_type: str, value: str | None) -> None:
+def _add_optional_descrip(
+    parent: ElementTree.Element, descrip_type: str, value: str | None
+) -> None:
     if value is None:
         return
 

@@ -27,3 +27,6 @@ data/dev/redis/
 
 .DS_Store
 Thumbs.db
+
+.idea/
+*.iml

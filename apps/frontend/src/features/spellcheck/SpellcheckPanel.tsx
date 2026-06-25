@@ -4,17 +4,11 @@ import { useEffect, useState } from "react";
 import {
   checkSpelling,
   ignoreSpellcheckWord,
-  type DocumentRead,
-  type SegmentRead,
   type SpellcheckIssue,
   type SpellcheckSuggestion
 } from "../../lib/api-client";
+import type { ActiveSegmentContext } from "../../lib/types";
 
-type ActiveSegmentContext = {
-  document: DocumentRead;
-  segment: SegmentRead;
-  targetText: string;
-};
 type PanelState = "idle" | "loading" | "ready" | "empty" | "error" | "no-text";
 
 type SpellcheckPanelProps = {

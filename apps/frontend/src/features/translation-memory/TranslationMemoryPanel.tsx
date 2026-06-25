@@ -3,16 +3,10 @@ import { useEffect, useState } from "react";
 
 import {
   searchTranslationMemory,
-  type DocumentRead,
-  type SegmentRead,
   type TranslationMemorySuggestion
 } from "../../lib/api-client";
+import type { ActiveSegmentContext } from "../../lib/types";
 
-type ActiveSegmentContext = {
-  document: DocumentRead;
-  segment: SegmentRead;
-  targetText: string;
-};
 type PanelState = "idle" | "loading" | "ready" | "empty" | "error";
 
 type TranslationMemoryPanelProps = {

@@ -85,9 +85,11 @@ W repozytorium wdrożono fundament rekomendowanego stacku oraz pierwszy przeplyw
 - Dokumenty: import tresci TXT przez API, segmentacja po zdaniach albo akapitach i zapis w bazie.
 - Edytor: frontend pobiera dokumenty i segmenty z API oraz zapisuje robocze tlumaczenia.
 
+RapidFuzz jest już wdrożony i obsługuje fuzzy match w pamięci tłumaczeń.
+
 Elementy wymienione w wariancie rekomendowanym, ale jeszcze niewdrożone funkcjonalnie:
 
 - TanStack Query i Zustand.
 - Worker RQ/Celery.
-- RapidFuzz, Hunspell/LanguageTool.
+- Hunspell/LanguageTool.
 - `pgvector` i embeddingi.
