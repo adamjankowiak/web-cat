@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from uuid import uuid4
 
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -8,6 +9,7 @@ from sqlalchemy.pool import StaticPool
 import cat_api.models  # noqa: F401
 from cat_api.db.session import Base, get_session
 from cat_api.main import app
+from cat_api.models.document import Document, Project, Segment
 
 
 def test_import_txt_document_creates_segments_and_saves_draft() -> None:
@@ -104,6 +106,59 @@ def test_import_txt_document_rejects_empty_or_invalid_input() -> None:
 
     app.dependency_overrides.clear()
     client.close()
+
+
+def test_get_document_returns_404_for_unknown_id(
+    test_client: tuple[TestClient, sessionmaker[Session]],
+) -> None:
+    client, _ = test_client
+
+    response = client.get(f"/documents/{uuid4()}")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Document was not found."
+
+
+def test_export_endpoints_return_404_for_unknown_document(
+    test_client: tuple[TestClient, sessionmaker[Session]],
+) -> None:
+    client, _ = test_client
+    unknown_id = uuid4()
+
+    txt_response = client.get(f"/documents/{unknown_id}/export.txt")
+    xliff_response = client.get(f"/documents/{unknown_id}/export.xliff")
+
+    assert txt_response.status_code == 404
+    assert xliff_response.status_code == 404
+
+
+def test_export_filename_is_sanitized(
+    test_client: tuple[TestClient, sessionmaker[Session]],
+) -> None:
+    client, testing_session = test_client
+
+    with testing_session() as session:
+        project = Project(name="Sample", source_language="en", target_language="pl")
+        document = Document(
+            project=project,
+            filename="My Report (v2).txt",
+            source_language="en",
+            target_language="pl",
+            status="imported",
+        )
+        document.segments = [Segment(position=1, source_text="Hi.", target_text="Cześć.")]
+        session.add(document)
+        session.commit()
+        document_id = str(document.id)
+
+    response = client.get(f"/documents/{document_id}/export.txt")
+
+    assert response.status_code == 200
+    disposition = response.headers["content-disposition"]
+    assert disposition.endswith('.txt"')
+    assert "My_Report" in disposition
+    assert " " not in disposition.split("filename=")[1]
+    assert "(" not in disposition and ")" not in disposition
 
 
 def _build_test_client() -> TestClient:

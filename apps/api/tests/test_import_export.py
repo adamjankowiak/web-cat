@@ -291,6 +291,21 @@ def test_import_tbx_rejects_invalid_structure() -> None:
     _close_test_client(client)
 
 
+def test_import_tmx_rejects_malformed_xml() -> None:
+    client = _build_test_client()[0]
+
+    response = client.post(
+        "/translation-memory/import-tmx",
+        content="<tmx><body><tu></body></tmx>",
+        headers={"Content-Type": "application/xml"},
+    )
+
+    assert response.status_code == 400
+    assert "XML is invalid" in response.json()["detail"]
+
+    _close_test_client(client)
+
+
 def test_import_tmx_rejects_dtd_entity_expansion() -> None:
     client = _build_test_client()[0]
 
