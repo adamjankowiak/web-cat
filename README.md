@@ -1,8 +1,27 @@
 # web-cat
 
+[![CI](https://github.com/adamjankowiak/web-cat/actions/workflows/ci.yml/badge.svg)](https://github.com/adamjankowiak/web-cat/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.12-blue.svg)](apps/api/pyproject.toml)
+[![Node](https://img.shields.io/badge/node-22-brightgreen.svg)](apps/frontend/package.json)
+
 Webowa platforma CAT (Computer-Assisted Translation) wspierajaca przeplyw pracy tlumacza
 nad segmentowanym dokumentem EN-PL. MVP laczy edytor segmentow, pamiec tlumaczen,
 slownik kontekstowy, walidacje terminologii, prosty spellcheck oraz eksport formatow CAT.
+
+## Spis tresci
+
+- [Co jest wdrozone w MVP](#co-jest-wdrozone-w-mvp)
+- [Struktura](#struktura)
+- [Szybki start z DEMO](#szybki-start-z-demo)
+- [Uruchomienie lokalne](#uruchomienie-lokalne)
+- [Uruchomienie przez Docker](#uruchomienie-przez-docker)
+- [Testy i jakosc](#testy-i-jakosc)
+- [Scenariusz demo](#scenariusz-demo)
+- [Szybkie API](#szybkie-api)
+- [Ograniczenia MVP i rozszerzenia](#ograniczenia-mvp-i-rozszerzenia)
+- [Dokumentacja projektowa](#dokumentacja-projektowa)
+- [Licencja](#licencja)
 
 ## Co jest wdrozone w MVP
 
@@ -20,10 +39,12 @@ slownik kontekstowy, walidacje terminologii, prosty spellcheck oraz eksport form
 
 - `apps/api` - backend FastAPI, SQLAlchemy, Alembic i testy backendu.
 - `apps/frontend` - frontend React/Vite, Vitest, React Testing Library i Playwright.
-- `libs/shared` - wspolne kontrakty API i typy.
+- `libs/shared` - recznie utrzymywany kontrakt OpenAPI i typy referencyjne (nieimportowane
+  przez aplikacje w MVP).
 - `data/samples` - male dane demonstracyjne EN-PL dla domeny software/CAT.
 - `docs` - plan etapow, model danych, moduly CAT, kontrakty API oraz DevOps/testy.
-- `infra` - konfiguracje Docker.
+- `infra` - konfiguracje Docker i inicjalizacja Postgresa.
+- `scripts` - pomocnicze skrypty PowerShell (`dev.ps1`, `seed_data.ps1`).
 - `tests` - test e2e i fixture'y.
 
 ## Szybki start z DEMO
@@ -122,12 +143,14 @@ Backend:
 cd apps/api
 python -m pytest
 python -m ruff check .
+python -m ruff format --check .
 ```
 
 Frontend:
 
 ```powershell
 cd apps/frontend
+npm run lint
 npm run build
 npm run test
 ```
@@ -199,14 +222,17 @@ Invoke-RestMethod -Uri http://localhost:8000/translation-memory/import-tmx -Meth
 Invoke-RestMethod -Uri http://localhost:8000/glossary/import-tbx -Method Post -ContentType "application/xml" -InFile glossary.tbx
 ```
 
+Importy XML odrzucaja deklaracje DTD/DOCTYPE (ochrona przed atakami typu entity-expansion),
+a serwer odrzuca zadania o ciele wiekszym niz 10 MB (`max_request_body_bytes`).
+
 ## Ograniczenia MVP i rozszerzenia
 
 - Spellcheck jest uproszczonym lokalnym adapterem slownikowym, a nie pelna korekta
   gramatyczno-stylistyczna.
 - TMX, TBX i XLIFF obsluguja swiadomie ograniczony subset potrzebny do prezentacji MVP.
 - Aplikacja nie ma pelnego uwierzytelniania i wielouzytkownikowych uprawnien.
-- Importy, eksporty i indeksowanie sa synchroniczne; worker asynchroniczny jest przygotowany
-  strukturalnie, ale nie wdrozony.
+- Importy, eksporty i indeksowanie sa synchroniczne; asynchroniczny worker pozostaje
+  proponowanym rozszerzeniem (brak implementacji).
 - Terminologia nie uwzglednia fleksji ani lematyzacji jezyka polskiego.
 - Naturalne rozszerzenia: LanguageTool, Hunspell, lematyzacja, import XLIFF, semantyczna
   pamiec tlumaczen, ICE/context match, async workers i pelny model projektow/uzytkownikow.
@@ -223,3 +249,7 @@ Invoke-RestMethod -Uri http://localhost:8000/glossary/import-tbx -Method Post -C
 - [DevOps i testy](docs/07-devops-i-testy.md)
 - [Opcjonalna mapa laboratoriow](docs/08-mapa-laboratoriow.md)
 - [Koncepcja projektu i narzedzia](docs/09-koncepcja-projektu-i-narzedzia.md)
+
+## Licencja
+
+Projekt jest udostepniany na licencji [MIT](LICENSE).
