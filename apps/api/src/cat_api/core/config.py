@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     database_url: str = "postgresql+psycopg://web_cat:web_cat@localhost:5432/web_cat"
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+    max_request_body_bytes: int = 10 * 1024 * 1024
 
     @property
     def allowed_cors_origins(self) -> list[str]:

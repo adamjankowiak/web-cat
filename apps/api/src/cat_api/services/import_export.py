@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
@@ -21,6 +22,8 @@ from cat_api.services.translation_memory import (
 XML_LANG = "{http://www.w3.org/XML/1998/namespace}lang"
 XLIFF_NS = "urn:oasis:names:tc:xliff:document:1.2"
 ElementTree.register_namespace("", XLIFF_NS)
+
+_DOCTYPE_RE = re.compile(r"<!DOCTYPE", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -264,6 +267,12 @@ def _xml_to_string(root: ElementTree.Element) -> str:
 
 
 def _parse_xml(content: str, format_name: str) -> ElementTree.Element:
+    # Reject inline DTDs before parsing. Internal entity definitions are the
+    # vector for entity-expansion ("billion laughs") denial-of-service bombs,
+    # and well-formed TMX/TBX uploads never need a DOCTYPE.
+    if _DOCTYPE_RE.search(content):
+        raise ValueError(f"{format_name} XML must not contain a DTD/DOCTYPE declaration.")
+
     try:
         return ElementTree.fromstring(content)
     except ElementTree.ParseError as exc:

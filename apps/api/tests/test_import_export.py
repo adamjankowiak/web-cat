@@ -291,6 +291,36 @@ def test_import_tbx_rejects_invalid_structure() -> None:
     _close_test_client(client)
 
 
+def test_import_tmx_rejects_dtd_entity_expansion() -> None:
+    client = _build_test_client()[0]
+
+    response = client.post(
+        "/translation-memory/import-tmx",
+        content=_entity_expansion_bomb("tmx"),
+        headers={"Content-Type": "application/xml"},
+    )
+
+    assert response.status_code == 400
+    assert "DOCTYPE" in response.json()["detail"]
+
+    _close_test_client(client)
+
+
+def test_import_tbx_rejects_dtd_entity_expansion() -> None:
+    client = _build_test_client()[0]
+
+    response = client.post(
+        "/glossary/import-tbx",
+        content=_entity_expansion_bomb("tbx"),
+        headers={"Content-Type": "application/xml"},
+    )
+
+    assert response.status_code == 400
+    assert "DOCTYPE" in response.json()["detail"]
+
+    _close_test_client(client)
+
+
 def _build_test_client() -> tuple[TestClient, sessionmaker[Session]]:
     engine = create_engine(
         "sqlite+pysqlite:///:memory:",
@@ -372,6 +402,20 @@ def _sample_tbx() -> str:
 
 def _find_descendant(element: ElementTree.Element, name: str) -> ElementTree.Element | None:
     return next((item for item in element.iter() if _local_name(item.tag) == name), None)
+
+
+def _entity_expansion_bomb(root: str) -> str:
+    return (
+        '<?xml version="1.0"?>\n'
+        f"<!DOCTYPE {root} [\n"
+        '  <!ENTITY a "aaaaaaaaaa">\n'
+        '  <!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;">\n'
+        "]>\n"
+        f"<{root}><body><tu>"
+        '<tuv xml:lang="en"><seg>&b;</seg></tuv>'
+        '<tuv xml:lang="pl"><seg>&b;</seg></tuv>'
+        f"</tu></body></{root}>"
+    )
 
 
 def _local_name(tag: str) -> str:
