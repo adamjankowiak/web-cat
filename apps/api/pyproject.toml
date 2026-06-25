@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "web-cat-api"
 version = "0.1.0"
 description = "FastAPI backend for the Web CAT platform."
+license = "MIT"
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.13,<2.0",
