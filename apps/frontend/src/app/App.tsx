@@ -7,27 +7,13 @@ import { TranslationEditor } from "../features/editor/TranslationEditor";
 import { TranslationMemoryPanel } from "../features/translation-memory/TranslationMemoryPanel";
 import {
   getHealth,
-  type DocumentRead,
   type HealthResponse,
-  type SegmentRead,
   type SpellcheckIssue,
   type SpellcheckSuggestion
 } from "../lib/api-client";
+import type { ActiveSegmentContext, AppliedSuggestion } from "../lib/types";
 
 type ApiStatus = "checking" | "online" | "offline";
-type ActiveSegmentContext = {
-  document: DocumentRead;
-  segment: SegmentRead;
-  targetText: string;
-};
-type AppliedSuggestion = {
-  segmentId: string;
-  targetText: string;
-  appliedAt: number;
-  mode?: "replace" | "append" | "range";
-  start?: number;
-  end?: number;
-};
 
 export function App() {
   const [apiStatus, setApiStatus] = useState<ApiStatus>("checking");

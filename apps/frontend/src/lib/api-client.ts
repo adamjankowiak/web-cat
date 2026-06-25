@@ -393,13 +393,17 @@ async function downloadFile(path: string): Promise<void> {
 
   const blob = await response.blob();
   const objectUrl = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = objectUrl;
-  link.download = getDownloadFilename(response.headers.get("Content-Disposition"));
-  document.body.append(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(objectUrl);
+
+  try {
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = getDownloadFilename(response.headers.get("Content-Disposition"));
+    document.body.append(link);
+    link.click();
+    link.remove();
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
 }
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {

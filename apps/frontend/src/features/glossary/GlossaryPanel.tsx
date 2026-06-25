@@ -7,16 +7,10 @@ import {
   importGlossaryCsv,
   importGlossaryTbx,
   searchGlossary,
-  type DocumentRead,
-  type GlossaryTermMatch,
-  type SegmentRead
+  type GlossaryTermMatch
 } from "../../lib/api-client";
+import type { ActiveSegmentContext } from "../../lib/types";
 
-type ActiveSegmentContext = {
-  document: DocumentRead;
-  segment: SegmentRead;
-  targetText: string;
-};
 type PanelState = "idle" | "loading" | "ready" | "empty" | "error";
 
 type GlossaryPanelProps = {
