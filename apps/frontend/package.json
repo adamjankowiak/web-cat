@@ -9,6 +9,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 5173",
     "lint": "eslint .",
+    "screenshots": "node scripts/capture-screenshots.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test"
   },
