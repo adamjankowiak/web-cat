@@ -49,11 +49,13 @@ def create_app() -> FastAPI:
     app = FastAPI(title=settings.app_name, version=settings.app_version)
 
     app.add_middleware(MaxBodySizeMiddleware, max_bytes=settings.max_request_body_bytes)
+    # The API is stateless and uses no cookies or auth, so credentialed
+    # cross-origin requests are never needed; keep the surface minimal.
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.allowed_cors_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
+        allow_credentials=False,
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["*"],
     )
 
