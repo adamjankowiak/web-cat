@@ -9,20 +9,10 @@ Webowa platforma CAT (Computer-Assisted Translation) wspierajaca przeplyw pracy 
 nad segmentowanym dokumentem EN-PL. MVP laczy edytor segmentow, pamiec tlumaczen,
 slownik kontekstowy, walidacje terminologii, prosty spellcheck oraz eksport formatow CAT.
 
-## Zrzuty ekranu
-
-Edytor segmentow z aktywnym segmentem oraz panelami pamieci tlumaczen (exact/fuzzy match),
-slownika kontekstowego (terminy wymagane i zakazane) i sprawdzania pisowni:
-
-![Edytor web-cat z panelami pamieci tlumaczen, glosariusza i sprawdzania pisowni](docs/screenshots/editor.png)
-
-> Zrzut powstaje z prawdziwego interfejsu (Vite) z zamockowanym API i danymi demo.
-> Mozna go odtworzyc skryptem `apps/frontend/scripts/capture-screenshots.mjs`
-> (`npm run screenshots` przy uruchomionym `npm run dev`).
+![web-cat - przeplyw tlumaczenia: draft, sprawdzanie pisowni, korekta i zatwierdzenie segmentu, z panelami pamieci tlumaczen i glosariusza](docs/media/demo.gif)
 
 ## Spis tresci
 
-- [Zrzuty ekranu](#zrzuty-ekranu)
 - [Co jest wdrozone w MVP](#co-jest-wdrozone-w-mvp)
 - [Struktura](#struktura)
 - [Szybki start z DEMO](#szybki-start-z-demo)

@@ -1,20 +1,27 @@
-// Capture screenshots of the web-cat frontend for the README.
+// Record an animated demo of the web-cat frontend for the README.
 //
-// Renders the real Vite UI and mocks the API with demo data so every panel is
-// populated, then writes PNGs to docs/screenshots/.
+// Drives the real Vite UI through a translation workflow (type a draft, run
+// spellcheck, apply the fix, approve) while mocking the API with demo data,
+// records the session to video, and encodes it to docs/media/demo.gif with
+// ffmpeg.
 //
-// Usage (from apps/frontend):
-//   1. npm run dev                        # starts Vite on 127.0.0.1:5173
-//   2. node scripts/capture-screenshots.mjs
+// Usage (from apps/frontend, with ffmpeg on PATH):
+//   1. npm run dev                  # starts Vite on 127.0.0.1:5173
+//   2. node scripts/capture-demo.mjs
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { mkdir } from "node:fs/promises";
+import { mkdir, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { execFileSync } from "node:child_process";
 
 import { chromium } from "@playwright/test";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const outDir = resolve(here, "..", "..", "..", "docs", "screenshots");
+const mediaDir = resolve(here, "..", "..", "..", "docs", "media");
+const videoDir = resolve(tmpdir(), "web-cat-demo-video");
+const gifPath = resolve(mediaDir, "demo.gif");
 const appUrl = process.env.APP_URL ?? "http://127.0.0.1:5173";
+const viewport = { width: 1360, height: 1240 };
 const timestamp = "2026-06-20T10:00:00Z";
 
 const documentRecord = {
@@ -68,7 +75,7 @@ function tmEntry(id, source, target, score, matchType) {
   };
 }
 
-function glossaryMatch(id, sourceTerm, targetTerm, start, end, { forbidden = false, definition } = {}) {
+function glossaryMatch(id, sourceTerm, targetTerm, start, end, definition) {
   return {
     start,
     end,
@@ -83,7 +90,7 @@ function glossaryMatch(id, sourceTerm, targetTerm, start, end, { forbidden = fal
       definition: definition ?? null,
       domain: "software",
       case_sensitive: false,
-      forbidden,
+      forbidden: false,
       example_source: null,
       example_target: null
     }
@@ -122,14 +129,10 @@ async function mockApi(page) {
       const { source_text: sourceText = "" } = request.postDataJSON() ?? {};
       const matches = [
         sourceText.includes("file")
-          ? glossaryMatch("g-file", "file", "plik", 9, 13, {
-              definition: "A document stored by the application."
-            })
+          ? glossaryMatch("g-file", "file", "plik", 9, 13, "A document stored by the application.")
           : null,
         sourceText.includes("window")
-          ? glossaryMatch("g-window", "window", "okno", 29, 35, {
-              definition: "Application frame shown on screen."
-            })
+          ? glossaryMatch("g-window", "window", "okno", 29, 35, "Application frame shown on screen.")
           : null
       ].filter(Boolean);
       return json(route, { matches });
@@ -149,6 +152,9 @@ async function mockApi(page) {
         ]
       });
     }
+    if (pathname.endsWith("/approve")) {
+      return json(route, { ...segments[1], target_text: "Zapisz plik przed zamknieciem okna.", status: "approved" });
+    }
     if (/\/segments\/[^/]+$/.test(pathname)) {
       const body = request.postDataJSON() ?? {};
       return json(route, { ...segments[1], target_text: body.target_text ?? "" });
@@ -159,37 +165,81 @@ async function mockApi(page) {
 }
 
 async function main() {
-  await mkdir(outDir, { recursive: true });
+  await mkdir(mediaDir, { recursive: true });
+  await rm(videoDir, { recursive: true, force: true });
 
   const browser = await chromium.launch();
   const context = await browser.newContext({
-    viewport: { width: 1440, height: 900 },
-    deviceScaleFactor: 2
+    viewport,
+    recordVideo: { dir: videoDir, size: viewport }
   });
   const page = await context.newPage();
   await mockApi(page);
 
   await page.goto(appUrl, { waitUntil: "networkidle" });
   await page.getByRole("button", { name: /1 save the file/i }).waitFor();
+  await page.waitForTimeout(900);
 
-  // Focus the second segment so the memory and glossary panels show matches.
+  // Focus a segment that has memory and glossary matches.
   await page.getByRole("button", { name: /2 save the file before closing the window/i }).click();
-  await page
-    .getByRole("textbox", { name: "Target", exact: true })
-    .fill("Zapisz plk przed zamknieciem okna.");
-
-  // Run spellcheck so the QA panel shows a real finding with a suggestion.
-  await page.getByRole("button", { name: "Check", exact: true }).click();
-  await page.locator(".finding-row").filter({ hasText: "plk" }).waitFor();
   await page.locator(".suggestion-row").first().waitFor();
   await page.locator(".term-row").first().waitFor();
+  await page.waitForTimeout(1100);
 
-  // Interactions auto-scroll the page; reset so the header and editor are in frame.
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({ path: resolve(outDir, "editor.png"), fullPage: true });
-  console.log("Saved docs/screenshots/editor.png");
+  // Type a draft translation that contains a spelling mistake.
+  const target = page.getByRole("textbox", { name: "Target", exact: true });
+  await target.click();
+  await target.pressSequentially("Zapisz plk przed zamknieciem okna.", { delay: 55 });
+  await page.waitForTimeout(700);
 
+  // Run spellcheck and apply the suggested correction.
+  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await page.locator(".finding-row").filter({ hasText: "plk" }).waitFor();
+  await page.waitForTimeout(1200);
+  await page.locator(".finding-actions button", { hasText: "plik" }).first().click();
+  await page.waitForTimeout(1200);
+
+  // Approve the segment.
+  await page.getByRole("button", { name: "Approve" }).click();
+  await page.getByRole("heading", { name: "approved" }).waitFor();
+  await page.waitForTimeout(1600);
+
+  const videoPath = await page.video().path();
+  await context.close();
   await browser.close();
+
+  encodeGif(videoPath);
+  await rm(videoDir, { recursive: true, force: true });
+  console.log(`Saved ${gifPath}`);
+}
+
+function encodeGif(videoPath) {
+  const palette = resolve(videoDir, "palette.png");
+  const filters = "fps=10,scale=900:-1:flags=lanczos";
+  execFileSync("ffmpeg", [
+    "-y",
+    "-ss",
+    "0.5",
+    "-i",
+    videoPath,
+    "-vf",
+    `${filters},palettegen=max_colors=192:stats_mode=diff`,
+    palette
+  ]);
+  execFileSync("ffmpeg", [
+    "-y",
+    "-ss",
+    "0.5",
+    "-i",
+    videoPath,
+    "-i",
+    palette,
+    "-lavfi",
+    `${filters}[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle`,
+    "-loop",
+    "0",
+    gifPath
+  ]);
 }
 
 main().catch((error) => {
