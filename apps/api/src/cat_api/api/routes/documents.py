@@ -12,8 +12,8 @@ from cat_api.schemas.document import (
     DocumentRead,
     SegmentRead,
 )
-from cat_api.services.segmentation import segment_text
 from cat_api.services.import_export import export_document_txt, export_document_xliff
+from cat_api.services.segmentation import segment_text
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -58,7 +58,9 @@ def import_txt_document(
 @router.get("", response_model=list[DocumentRead])
 def list_documents(session: Session = Depends(get_session)) -> list[Document]:
     return list(
-        session.scalars(select(Document).order_by(Document.created_at.desc(), Document.filename)).all()
+        session.scalars(
+            select(Document).order_by(Document.created_at.desc(), Document.filename)
+        ).all()
     )
 
 
@@ -89,7 +91,9 @@ def export_txt_document(
     return Response(
         content=export_document_txt(document),
         media_type="text/plain; charset=utf-8",
-        headers={"Content-Disposition": f'attachment; filename="{_export_filename(document, "txt")}"'},
+        headers={
+            "Content-Disposition": f'attachment; filename="{_export_filename(document, "txt")}"'
+        },
     )
 
 

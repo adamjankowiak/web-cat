@@ -30,7 +30,10 @@ def test_demo_seed_loads_sample_document_memory_and_glossary(
 
     second_response = client.post("/demo/seed")
     assert second_response.status_code == 201
-    assert second_response.json()["document"]["document"]["id"] == payload["document"]["document"]["id"]
+    assert (
+        second_response.json()["document"]["document"]["id"]
+        == payload["document"]["document"]["id"]
+    )
 
     with testing_session() as session:
         assert len(session.scalars(select(Document)).all()) == 1

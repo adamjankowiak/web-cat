@@ -7,9 +7,10 @@ Create Date: 2026-06-15 00:00:00.000000
 
 from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
+
+from alembic import op
 
 revision: str = "0001_initial"
 down_revision: str | None = None
@@ -25,7 +26,12 @@ def upgrade() -> None:
         sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("email", sa.String(length=320), nullable=False),
         sa.Column("display_name", sa.String(length=160), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("email"),
     )
@@ -38,7 +44,12 @@ def upgrade() -> None:
         sa.Column("source_language", sa.String(length=16), nullable=False),
         sa.Column("target_language", sa.String(length=16), nullable=False),
         sa.Column("domain", sa.String(length=128), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.ForeignKeyConstraint(["owner_id"], ["users.id"], ondelete="SET NULL"),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -51,7 +62,12 @@ def upgrade() -> None:
         sa.Column("source_language", sa.String(length=16), nullable=False),
         sa.Column("target_language", sa.String(length=16), nullable=False),
         sa.Column("status", sa.String(length=32), server_default="new", nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.ForeignKeyConstraint(["project_id"], ["projects.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -66,8 +82,18 @@ def upgrade() -> None:
         sa.Column("target_text", sa.Text(), nullable=True),
         sa.Column("status", sa.String(length=32), server_default="new", nullable=False),
         sa.Column("locked", sa.Boolean(), server_default=sa.text("false"), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.ForeignKeyConstraint(["document_id"], ["documents.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("document_id", "position", name="uq_segments_document_position"),
@@ -85,7 +111,12 @@ def upgrade() -> None:
         sa.Column("domain", sa.String(length=128), nullable=True),
         sa.Column("project_id", postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column("created_by", postgresql.UUID(as_uuid=True), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.ForeignKeyConstraint(["created_by"], ["users.id"], ondelete="SET NULL"),
         sa.ForeignKeyConstraint(["project_id"], ["projects.id"], ondelete="SET NULL"),
         sa.PrimaryKeyConstraint("id"),
@@ -137,7 +168,12 @@ def upgrade() -> None:
         sa.Column("language", sa.String(length=16), nullable=False),
         sa.Column("word", sa.String(length=255), nullable=False),
         sa.Column("created_by", postgresql.UUID(as_uuid=True), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.ForeignKeyConstraint(["created_by"], ["users.id"], ondelete="SET NULL"),
         sa.ForeignKeyConstraint(["project_id"], ["projects.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
